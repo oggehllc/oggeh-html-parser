@@ -1,2 +1,3 @@
-# oggeh-html-parser
-Custom HTML tag for OGGEH Content API, for skills limited to HTML and CSS only.
+# OGGEH HTML Parser
+
+Documentation can be found at [docs.oggeh.com](https://docs.oggeh.com)
