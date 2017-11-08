@@ -28,6 +28,12 @@
 	 */
 	class OGGEH {
 		/*
+		 * App Domain.
+		 *
+		 * @var string
+		 */
+		static $domain = '';
+		/*
 		 * App API Key.
 		 *
 		 * @var string
@@ -99,6 +105,12 @@
 		 */
 		public $app = null;
 		/*
+		 * App URI.
+		 *
+		 * @var string
+		 */
+		private $uri = '';
+		/*
 		 * API Endpoint.
 		 *
 		 * @var string
@@ -110,6 +122,18 @@
 		 * @var boolean
 		 */
 		private $published = true;
+		/*
+		 * App direction.
+		 *
+		 * @var string
+		 */
+		private $direction = 'ltr';
+		/*
+		 * RTL languages.
+		 *
+		 * @var string
+		 */
+		private $rtl_langs = array('ar', 'fa');
 		/*
 		 * Default image blank source.
 		 *
@@ -124,13 +148,14 @@
 			date_default_timezone_set('Africa/Cairo');
 			session_start();
 			error_reporting(0);
-			$uri = $_SERVER['REQUEST_URI'];
-			$pieces = parse_url($uri);
+			$this->uri = $_SERVER['REQUEST_URI'];
+			$pieces = parse_url($this->uri);
 			$path = trim($pieces['path'], '/');
 			$segments = explode('/', $path);
 			if (count($segments)>0) {
 				if (strlen($segments[0])>0) {
 					$this->url_lang = $segments[0];
+					$this->direction = (in_array($this->url_lang, $this->rtl_langs)) ? 'rtl' : 'ltr';
 				}
 				if (count($segments)>1) {
 					$this->url_module = $segments[1];
@@ -222,6 +247,7 @@
 		 * @return object
 		 */
 		public function call($data=array()) {
+			$domain = self::$domain;
 			$api_key = self::$api_key;
 			$lang = $this->url_lang;
 			if (!isset($api_key) || empty($api_key)) {
@@ -261,6 +287,7 @@
 		    curl_setopt($ch, CURLOPT_URL, $url);
 		    curl_setopt($ch, CURLOPT_USERAGENT, isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : 'OGGEH v1.0');
 		    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+		    	'Origin: '.$domain,
 		    	'Accept: application/json',
 		    	'Content-Type: application/json',
 		    	'Content-Length: '.strlen($body)
@@ -768,9 +795,14 @@
 						$markup = $tpl;
 					}
 					break;
-				} elseif (!isset($tpl['opts']['type'])) {
-					$markup = $tpl;
-					break;
+				}
+			}
+			if (!$markup) {
+				foreach ($tpls as $tpl) {
+					if (!isset($tpl['opts']['type'])) {
+						$markup = $tpl;
+						break;
+					}
 				}
 			}
 			if ($markup) {
@@ -1194,6 +1226,7 @@
 			$html = preg_replace('/{\$endpoint}/', $this->endpoint, $html);
 			$html = preg_replace('/{\$api_key}/', self::$api_key, $html);
 			$html = preg_replace('/{\$lang}/', $this->url_lang, $html);
+			$html = preg_replace('/{\$dir}/', $this->direction, $html);
 			$html = preg_replace('/{\$title}/', $this->app['title'], $html);
 			$html = preg_replace('/{\$domain}/', $this->app['domain'], $html);
 			$html = preg_replace('/{\$bucket}/', $this->app['bucket'], $html);
@@ -1201,6 +1234,30 @@
 			$html = preg_replace('/{\$module}/', $this->url_module, $html);
 			$html = preg_replace('/{\$param1}/', $this->url_child_id, $html);
 			$html = preg_replace('/{\$param2}/', $this->url_extra_id, $html);
+			preg_match_all('/{\$oggeh\-switch\|(?P<lang>.*?)}/', $html, $switch);
+			if ($switch) {
+				foreach ($switch[0] as $idx=>$sw) {
+					$regex = str_replace('$', '\$', $sw);
+					$regex = str_replace('-', '\-', $regex);
+					$regex = str_replace('|', '\|', $regex);
+					if (stristr($this->uri, '/'.$this->url_lang.'/')) {
+						$replace = str_replace('/'.$this->url_lang.'/', '/'.$switch['lang'][$idx].'/', $this->uri);
+					} else {
+						$replace = '/'.$switch['lang'][$idx].'/';
+					}
+					$html = preg_replace('/'.$regex.'/', $replace, $html);
+				}
+			}
+			preg_match_all('/{\$oggeh\-phrase\|(?P<key>.*?)}/', $html, $phrase);
+			if ($phrase) {
+				foreach ($phrase[0] as $idx=>$ph) {
+					$regex = str_replace('$', '\$', $ph);
+					$regex = str_replace('-', '\-', $regex);
+					$regex = str_replace('|', '\|', $regex);
+					$replace = $this->translate($phrase['key'][$idx]);
+					$html = preg_replace('/'.$regex.'/', $replace, $html);
+				}
+			}
 			return $html;
 		}
 		/*
