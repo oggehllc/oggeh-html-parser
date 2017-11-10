@@ -299,6 +299,7 @@
 		    curl_setopt($ch, CURLOPT_TIMEOUT, 360);
 		    curl_setopt($ch, CURLOPT_COOKIEFILE, $cookie);
 		    curl_setopt($ch, CURLOPT_COOKIEJAR, $cookie);
+		    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 		    $res = curl_exec($ch);
 		    if ($res === false) {
 		    	$res = '['.curl_error($ch).']';
