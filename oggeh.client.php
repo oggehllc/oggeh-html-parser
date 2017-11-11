@@ -536,7 +536,8 @@
 					$obj = $this->iterate($obj, $iterate, 0);
 					$iterate = (is_array($iterate)) ? implode('.', $iterate) : $iterate;
 				}
-				if ($convert) {
+				$is_model = $select == 'model' || $iterate == 'model';
+				if ($convert && !$is_model) {
 					$obj = (is_array($obj) && count($obj) == 1 && array_keys($obj) === range(0, count($obj) - 1)) ? $obj[0] : $obj; // treating one element array as an associative array (after above opertions)
 				}
 				$case = '';
