@@ -1,7 +1,7 @@
 <?php
 	/*
 	 * OGGEH HTML Parser
-	 * @version 0.1
+	 * @version 0.2
 	 * 
 	 * Author: Ahmed Abbas - OGGEH Cloud Computing LLC - oggeh.com
 	 * License: GNU-GPL v3 (http://www.gnu.org/licenses/gpl.html)
@@ -643,10 +643,14 @@
 					}
 					break;
 					default:
-					if (stristr($html, '{$value}')) {
-						$html = str_replace('{$value}', $obj, $html);
+					if ($is_model) {
+						$html = ''; // return nothing when there's no model attributes
 					} else {
-						$html = $obj;
+						if (stristr($html, '{$value}')) {
+							$html = str_replace('{$value}', $obj, $html);
+						} else {
+							$html = $obj;
+						}
 					}
 					break;
 				}
