@@ -28,6 +28,12 @@
 	 */
 	class OGGEH {
 		/*
+		 * SandBox Mode.
+		 *
+		 * @var string
+		 */
+		static $sandbox = false;
+		/*
 		 * App Domain.
 		 *
 		 * @var string
@@ -39,6 +45,12 @@
 		 * @var string
 		 */
 		static $api_key = '';
+		/*
+		 * App API Secret.
+		 *
+		 * @var string
+		 */
+		static $api_secret = '';
 		/*
 		 * Selected language.
 		 *
@@ -247,8 +259,10 @@
 		 * @return object
 		 */
 		public function call($data=array()) {
+			$sandbox = self::$sandbox;
 			$domain = self::$domain;
 			$api_key = self::$api_key;
+			$api_secret = self::$api_secret;
 			$lang = $this->url_lang;
 			if (!isset($api_key) || empty($api_key)) {
 				echo '[missing api key!]';
@@ -286,12 +300,16 @@
 	    	$ch = curl_init();
 		    curl_setopt($ch, CURLOPT_URL, $url);
 		    curl_setopt($ch, CURLOPT_USERAGENT, isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : 'OGGEH v1.0');
-		    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+		    $headers = array(
 		    	'Origin: '.$domain,
 		    	'Accept: application/json',
 		    	'Content-Type: application/json',
 		    	'Content-Length: '.strlen($body)
-		    ));
+		    );
+		    if ($sandbox) {
+		    	$headers[] = 'SandBox: '.hash_hmac('sha512', $domain.$api_key, $api_secret);
+		    }
+		    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		    curl_setopt($ch, CURLOPT_POST, true);
       	curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
@@ -1340,9 +1358,9 @@
 							break;
 						}
 					}
-					/*if ($user_name == $unlock_user && $user_password == $unlock_pass) {
+					if ($user_name == $unlock_user && $user_password == $unlock_pass) {
 						$authorized = true;
-					}*/
+					}
 				}
 				# login
 			  if (!$authorized || !isset($_SESSION['auth'])) {
@@ -1361,29 +1379,6 @@
 			}
 			if (!$lock) {
 				if ($this->published) {
-					/*if (isset($_REQUEST['method']) &&  $_REQUEST['method'] == 'send.mail' && isset($_REQUEST['to']) && isset($_REQUEST['name']) && isset($_REQUEST['from']) && isset($_REQUEST['msg'])) {
-						$email = $this->call(json_decode(json_encode($_REQUEST), true));
-						if ($email != 'sent') {
-							$html .=  '<span class="error">'.$email.'</span><span class="success"></span>';
-						} else {
-							$html .=  '<span class="error"></span><span class="success">'.$this->getPhrase('email_sent').'</span>';
-						}
-					} elseif (isset($_REQUEST['method']) &&  $_REQUEST['method'] == 'submit.form' && isset($_REQUEST['token']) && !empty($_REQUEST['token']) && isset($_REQUEST['form_name']) && !empty($_REQUEST['form_name']) && isset($_REQUEST['page_id']) && !empty($_REQUEST['page_id'])) {
-						$output = $this->call(json_decode(json_encode($_REQUEST), true));
-						if ($callback) {
-							$html .=  call_user_func($callback, $output);
-						} else {
-							$html .=  $output;
-						}
-					} else {
-						if (is_file(self::$tpl_dir.'/'.$this->url_module.'.html')) {
-							$html .= $this->parse(self::$tpl_dir.'/'.$this->url_module.'.html', $callback);
-						} else {
-							if (is_file(self::$tpl_dir.'/404.html')) {
-								$html .= $this->parse(self::$tpl_dir.'/404.html');
-							}
-						}
-					}*/
 					if ($this->url_child_id != '') {
 						if (is_file(self::$tpl_dir.'/'.$this->url_module.'.single.html')) {
 							$tpls[] = self::$tpl_dir.'/'.$this->url_module.'.single.html';
