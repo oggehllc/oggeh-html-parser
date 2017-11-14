@@ -445,12 +445,14 @@
 						foreach ($drill as $d) {
 							$d = (is_numeric($d)) ? (int)$d : $d;
 							$replace = $replace[$d];
+							$replace = str_replace('/watch?v=', '/embed/', $replace); // proper youtube iframe embedding!
 							if ($d == 'url' && $replace == '' && isset($this->blank)) {
 								$replace = $this->blank;
 							}
 						}
 					} else {
 						$replace = $obj[$v['var']];
+						$replace = str_replace('/watch?v=', '/embed/', $replace); // proper youtube iframe embedding!
 						if ($v['var'] == 'url' && $replace == '') {
 							$replace = $this->blank;
 						}
@@ -555,7 +557,8 @@
 					$iterate = (is_array($iterate)) ? implode('.', $iterate) : $iterate;
 				}
 				$is_model = $select == 'model' || $iterate == 'model';
-				if ($convert && !$is_model) {
+				$is_media = !$nest && $select == 'media';
+				if ($convert && !$is_model && !$is_media) {
 					$obj = (is_array($obj) && count($obj) == 1 && array_keys($obj) === range(0, count($obj) - 1)) ? $obj[0] : $obj; // treating one element array as an associative array (after above opertions)
 				}
 				$case = '';
@@ -1237,7 +1240,7 @@
 			$html = preg_replace('#\soggeh-snippet#', '', $html);
 			$html = preg_replace('#\soggeh-search#', '', $html);
 			$html = preg_replace('#\s(inject)="[^"]+"#', '', $html);
-			$html = preg_replace('#(?: {2,}|[\r\n]+)#s', '<br />', $html);
+			$html = preg_replace('#(?:[\r\n]+)#s', '<br />', $html);
 			return $html;
 		}
 		/*
