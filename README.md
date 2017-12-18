@@ -51,27 +51,27 @@ domain.ltd | Your App domain as entered during creation.
 The library maps each model from your Frontend Request URL above to an HTML template file inside the _tpl_ directory.
 
 As of the home page, you need to keep a default HTML file _tpl/home.html_.
-	* For rendering single news post _tpl/news.single.html_.
-	* For rendering single photo album _tpl/album.photo.html_.
-	* For rendering single audio album _tpl/album.audio.html_.
-	* For rendering single video album _tpl/album.video.html_.
-	* For rendering single file album _tpl/album.file.html_.
-	* You can use _tpl/header.html_ and _tpl/footer.html_ as well, and the library will automatically wrap those around the rest of your HTML template files.
-	* You can use _tpl/404.html_ for invalid requests.
-	* You can use _tpl/inactive.html_ to be displayed when your App is not in production mode.
+* For rendering single news post _tpl/news.single.html_.
+* For rendering single photo album _tpl/album.photo.html_.
+* For rendering single audio album _tpl/album.audio.html_.
+* For rendering single video album _tpl/album.video.html_.
+* For rendering single file album _tpl/album.file.html_.
+* You can use _tpl/header.html_ and _tpl/footer.html_ as well, and the library will automatically wrap those around the rest of your HTML template files.
+* You can use _tpl/404.html_ for invalid requests.
+* You can use _tpl/inactive.html_ to be displayed when your App is not in production mode.
 
 ### Usage
 
 Our custom HTML tag `<oggeh />` can be used as follows:
 
 #### 1. General variables available are:
-	* `$lang`: URL first parameter (_check URL segments above_).
-	* `$module`: URL second parameter (_check URL segments above_).
-	* `$param1`: URL third parameter (_check URL segments above_).
-	* `$param2`: URL fourth parameter (_check URL segments above_).
-	* `$oggeh-phrase`: translates specific key from your own Frontend dictionary (_{$oggeh-phrase|phrase-custom-key}_).
-	* `$flag`: maps the language code to a country code (_defined at locale.json_).
-	* `$oggeh-clone-repeat`: has a copy of the preceding element which has `oggeh-repeat` flag (_check building App navigation below_).
+* `$lang`: URL first parameter (_check URL segments above_).
+* `$module`: URL second parameter (_check URL segments above_).
+* `$param1`: URL third parameter (_check URL segments above_).
+* `$param2`: URL fourth parameter (_check URL segments above_).
+* `$oggeh-phrase`: translates specific key from your own Frontend dictionary (_{$oggeh-phrase|phrase-custom-key}_).
+* `$flag`: maps the language code to a country code (_defined at locale.json_).
+* `$oggeh-clone-repeat`: has a copy of the preceding element which has `oggeh-repeat` flag (_check building App navigation below_).
 
 #### 2. Inline arrtibutes forms the request body (_the parser converts those into JSON later_), for example, the following attributes:
 ```
@@ -180,8 +180,8 @@ The above example will add a class name `active` to the anchor tag only if the U
 ```
 
 #### 6. For building your page blocks matching the same grid layout at the CMS, use `oggeh-snippet` inline flag to describe your custom markup for each block type. There are 2 additional properties you can use to mark each snippet:
-	* Block `type` property: accepts `rte`, `media`, `files`, or `table`.
-	* Media block `filter` property: accepts `photo`, `audio`, or `video`.
+* Block `type` property: accepts `rte`, `media`, `files`, or `table`.
+* Media block `filter` property: accepts `photo`, `audio`, or `video`.
 	
 	`NOTE: always use unique block snippet parent tag (_do not reuse in child tags_).`
 
@@ -232,15 +232,15 @@ The parser automatically iterates over the proper target at the API response, fo
 Where the variable `$size_x` represents the column size for each snippet (_12 columns grid_).
 
 #### 7. For building you page form, use `oggeh-field` inline flag to describe your custom markup for each form field type, and use `oggeh-static` inline flag to describe your custom markup for any additional markup you want to add (_like `submit` and `reset` buttons_). There are 3 additional variables you can use to print each field:
-	* Field `$name` variable: represents field name (_plain text_).
-	* Field `$label` variable: represents field label (_plain text_).
-	* Field `$control` variable: represents field HTML markup (_HTML text_).
+* Field `$name` variable: represents field name (_plain text_).
+* Field `$label` variable: represents field label (_plain text_).
+* Field `$control` variable: represents field HTML markup (_HTML text_).
 	
 	`NOTE: always use unique field parent tag (_do not reuse in child tags_).`
 
 There is 2 additional property you can use to mark each field:
-	* Field `subtype` property: accepts `text`, `email`, `password`, `number` or `color`.
-	* Field `inject` property: add custom classes to the target tag, and might accept a single condition to be applied `required`, `toggle`, or any other boolean attribute at the API response.
+* Field `subtype` property: accepts `text`, `email`, `password`, `number` or `color`.
+* Field `inject` property: add custom classes to the target tag, and might accept a single condition to be applied `required`, `toggle`, or any other boolean attribute at the API response.
 
 	`NOTE: conditional inline tag class inject works only in inner html (_not applying to control_).`
 
