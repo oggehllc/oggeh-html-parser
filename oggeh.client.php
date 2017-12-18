@@ -1,7 +1,7 @@
 <?php
 	/*
 	 * OGGEH HTML Parser
-	 * @version 0.2
+	 * @version 0.3
 	 * 
 	 * Author: Ahmed Abbas - OGGEH Cloud Computing LLC - oggeh.com
 	 * License: GNU-GPL v3 (http://www.gnu.org/licenses/gpl.html)
@@ -147,6 +147,12 @@
 		 */
 		private $rtl_langs = array('ar', 'fa');
 		/*
+		 * Locale list.
+		 *
+		 * @var array
+		 */
+		private $locale = array();
+		/*
 		 * Default image blank source.
 		 *
 		 * @var string
@@ -160,6 +166,9 @@
 			date_default_timezone_set('Africa/Cairo');
 			session_start();
 			error_reporting(0);
+			if (is_file('locale.json')) {
+				$this->locale = array_reverse(json_decode(file_get_contents('locale.json'), true));
+			}
 			$this->uri = $_SERVER['REQUEST_URI'];
 			$pieces = parse_url($this->uri);
 			$path = trim($pieces['path'], '/');
@@ -172,9 +181,9 @@
 				if (count($segments)>1) {
 					$this->url_module = $segments[1];
 					if (count($segments)>2) {
-						$this->url_child_id = $segments[2];
+						$this->url_child_id = urldecode($segments[2]);
 						if (count($segments)>3) {
-							$this->url_extra_id = $segments[3];
+							$this->url_extra_id = urldecode($segments[3]);
 						}
 					}
 				}
@@ -445,18 +454,25 @@
 						foreach ($drill as $d) {
 							$d = (is_numeric($d)) ? (int)$d : $d;
 							$replace = $replace[$d];
-							$replace = str_replace('/watch?v=', '/embed/', $replace); // proper youtube iframe embedding!
 							if ($d == 'url' && $replace == '' && isset($this->blank)) {
 								$replace = $this->blank;
 							}
 						}
 					} else {
-						$replace = $obj[$v['var']];
-						$replace = str_replace('/watch?v=', '/embed/', $replace); // proper youtube iframe embedding!
-						if ($v['var'] == 'url' && $replace == '') {
+						if (isset($obj[$v['var']])) {
+							$replace = $obj[$v['var']];
+						} else {
+							$replace = $obj; // handle plain values (identified by $ only)
+							if (stristr($html, '{$flag}')) {
+								$flag = $this->getCountryCodeByLang($replace);
+								$html = preg_replace('/{\$flag}/', $flag, $html);
+							}
+						}
+						if ($v['var'] == 'url' && $replace == '' && isset($this->blank)) {
 							$replace = $this->blank;
 						}
 					}
+					$replace = str_replace('/watch?v=', '/embed/', $replace); // proper youtube iframe embedding!
 					$html = str_replace('{$'.$v['var'].'}', $replace, $html);
 				}
 			}
@@ -548,7 +564,7 @@
 		protected function repeat($html, $repeat, $nest, $obj, $select, $iterate=null, $convert=true) {
 			$select = (stristr($select, ',')) ? explode(',', $select) : $select;
 			if ($html != '') {
-				if (is_string($select)) {
+				if (isset($obj[$select]) && is_string($select)) {
 					$obj = $obj[$select];
 				}
 				if (!empty($iterate)) {
@@ -558,7 +574,9 @@
 				}
 				$is_model = $select == 'model' || $iterate == 'model';
 				$is_media = !$nest && $select == 'media';
-				if ($convert && !$is_model && !$is_media) {
+				$is_files = !$nest && $select == 'files';
+				$is_album = !$nest && $iterate == 'items';
+				if ($convert && !$is_model && !$is_media && !$is_files && !$is_album) {
 					$obj = (is_array($obj) && count($obj) == 1 && array_keys($obj) === range(0, count($obj) - 1)) ? $obj[0] : $obj; // treating one element array as an associative array (after above opertions)
 				}
 				$case = '';
@@ -686,6 +704,7 @@
 					break;
 				}
 			}
+			$html = str_replace('/watch?v=', '/embed/', $html); // proper youtube iframe embedding!
 			return $html;
 		}
 		/*
@@ -697,6 +716,9 @@
 		protected function form($fields, $obj) {
 			$tpls = array();
 			if ($fields) {
+				if (array_keys($fields) !== range(0, count($fields) - 1)) {
+					$fields = array($fields);
+				}
 				foreach ($fields as $field) {
 					preg_match_all('@<(?P<tag>.*?)(?P<options>\s[^/>]+)?\s*?/>@xsi', $field[0], $self_tags, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
 					preg_match_all('@<(?P<tag>.*?)(?P<options>\s[^/>]+)?\s*?>(?P<content>.*?)<\/\1>@xsi', $field[0], $nonself_tags, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
@@ -884,6 +906,9 @@
 						$html = str_replace('{$label}', '', $html);
 					}
 				}
+				if (stristr($html, '{$name}')) {
+					$html = str_replace('{$name}', $obj['name'].((isset($obj['options']) && $obj['type'] == 'checkbox-group') ? '[]' : ''), $html);
+				}
 				if (stristr($html, '{$control}')) {
 					$html = str_replace('{$control}', $field, $html);
 				}
@@ -892,9 +917,9 @@
 				$html .= '<div class="field">';
 				if (!in_array($obj['type'], $nolabel)) {
 					if (isset($label)) {
-						$html .= '<label for="'.$obj['name'].'">'.$label.'</label>';
+						$html .= '<label for="'.$obj['name'].((isset($obj['options']) && $obj['type'] == 'checkbox-group') ? '[]' : '').'">'.$label.'</label>';
 					} elseif (isset($obj['label'])) {
-						$html .= '<label for="'.$obj['name'].'">'.$obj['label'].'</label>';
+						$html .= '<label for="'.$obj['name'].((isset($obj['options']) && $obj['type'] == 'checkbox-group') ? '[]' : '').'">'.$obj['label'].'</label>';
 					}
 				}
 				$html .= $field;
@@ -910,6 +935,9 @@
 		 */
 		protected function search($snippets, $obj) {
 			$tpls = array();
+			if (array_keys($snippets) !== range(0, count($snippets) - 1)) {
+				$snippets = array($snippets);
+			}
 			foreach ($snippets as $snippet) {
 				preg_match_all('@<(?P<tag>.*?)(?P<options>\s[^/>]+)?\s*?/>@xsi', $snippet[0], $self_tags, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
 				preg_match_all('@<(?P<tag>.*?)(?P<options>\s[^/>]+)?\s*?>(?P<content>.*?)<\/\1>@xsi', $snippet[0], $nonself_tags, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
@@ -946,9 +974,13 @@
 				}
 			}
 			$items = '';
-			foreach ($obj as $o) {
-				$item = $this->renderSearch($o, $tpls);
-				$items .= $item;
+			if (count($obj) > 0) {
+				foreach ($obj as $o) {
+					$item = $this->renderSearch($o, $tpls);
+					$items .= $item;
+				}
+			} else {
+				$items = $this->renderSearch(array('target'=>'none','items'=>array()), $tpls);
 			}
 			return $items;
 		}
@@ -1017,6 +1049,9 @@
 		 */
 		protected function blocks($snippets, $obj) {
 			$tpls = array();
+			if (array_keys($snippets) !== range(0, count($snippets) - 1)) {
+				$snippets = array($snippets);
+			}
 			foreach ($snippets as $snippet) {
 				preg_match_all('@<(?P<tag>.*?)(?P<options>\s[^/>]+)?\s*?/>@xsi', $snippet[0], $self_tags, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
 				preg_match_all('@<(?P<tag>.*?)(?P<options>\s[^/>]+)?\s*?>(?P<content>.*?)<\/\1>@xsi', $snippet[0], $nonself_tags, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
@@ -1106,7 +1141,8 @@
 					break;
 					case 'table':
 					$innr = '';
-					foreach ($obj[$type] as $index => $row) {
+					$prefix = ($this->url_lang != 'en') ? '_'.$this->url_lang : '';
+					foreach ($obj[$type.$prefix] as $index => $row) {
 						if ($index == 0) {
 							$innr .= '<thead>';
 						} elseif ($index == 1) {
@@ -1150,6 +1186,95 @@
 			return $html;
 		}
 		/*
+		 * Render page albums html output
+		 * @param string $snippets html snippet for album blocks
+		 * @param object $obj from api response
+		 * @return string
+		 */
+		protected function album($albums, $obj) {
+			$tpls = array();
+			if (array_keys($albums) !== range(0, count($albums) - 1)) {
+				$albums = array($albums);
+			}
+			foreach ($albums as $album) {
+				preg_match_all('@<(?P<tag>.*?)(?P<options>\s[^/>]+)?\s*?/>@xsi', $album[0], $self_tags, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
+				preg_match_all('@<(?P<tag>.*?)(?P<options>\s[^/>]+)?\s*?>(?P<content>.*?)<\/\1>@xsi', $album[0], $nonself_tags, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
+				$tags = array_merge($self_tags, $nonself_tags);
+				if ($tags) {
+					foreach ($tags as $tag) {
+						$options = array();
+						if (!empty($tag['options'][0])) {
+							if (preg_match_all('@(?P<name>\w+)\s*=\s*((?P<quote>[\"\'])(?P<value_quoted>.*?)(?P=quote)|(?P<value_unquoted>[^\s"\']+?)(?:\s+|$))@xsi', $tag['options'][0], $attrs, PREG_SET_ORDER)) {
+								foreach($attrs as $attr){
+									if (!empty($attr['value_quoted'])){
+										$value = $attr['value_quoted'];
+				          } else if (!empty($attr['value_unquoted'])){
+										$value = $attr['value_unquoted'];
+				          } else {
+										$value = '';
+				          }
+				          $value = html_entity_decode($value, ENT_QUOTES, 'UTF-8');
+				          $options[str_replace('-', '_', $attr['name'])] = $value;
+								}
+							}
+						}
+						$content = '';
+						if (isset($tag['content'])) {
+							$content = $tag['content'][0];
+						}
+						$element = $tag[0][0];
+						$tpls[] = array(
+							'elm'=>$element,
+							'opts'=>$options,
+							'innr'=>$content
+						);
+					}
+				}
+			}
+			$items = '';
+			foreach ($obj as $o) {
+				$item = $this->renderAlbum($o, $tpls);
+				$items .= $item;
+			}
+			return $items;
+		}
+		/*
+		 * Render single album html output
+		 * @param object $obj from api response
+		 * @param string $tpls html snippet for album blocks
+		 * @return string
+		 */
+		protected function renderAlbum($obj, $tpls) {
+			$unsafe = array(
+				'media'
+			);
+			$media = array(
+				'photo',
+				'audio',
+				'video',
+				'file'
+			);
+			$markup = null;
+			foreach ($tpls as $tpl) {
+				if (isset($tpl['opts']['media']) && $tpl['opts']['media'] == $obj['media']) {
+					$markup = $tpl;
+					break;
+				}
+			}
+			if ($markup) {
+				$del = '';
+				foreach ($markup['opts'] as $key=>$value) {
+					if (in_array($key, $unsafe)) {
+						$del .= ' '.$key.'="'.$value.'"';
+					}
+				}
+				$html = str_replace($del, '', $markup['elm']);
+				$html = $this->select($html, $obj);
+				$html = str_replace($markup['innr'], $innr, $html);
+			}
+			return $html;
+		}
+		/*
 		 * Render oggeh html output.
 		 * @param string $opts tag options
 		 * @param string $innr non-self-closing tag inner html
@@ -1164,6 +1289,7 @@
 			preg_match_all('/<(?P<tag>\w+)[^>]*oggeh-field[^>]*>(?P<innr>.*?)<\/\1>/', $innr, $fields, PREG_SET_ORDER, 0); // form field tags
 			preg_match_all('/<(?P<tag>\w+)[^>]*oggeh-static[^>]*>(?P<innr>.*?)<\/\1>/', $innr, $statics, PREG_SET_ORDER, 0); // form static tags
 			preg_match_all('/<(?P<tag>\w+)[^>]*oggeh-snippet[^>]*>(?P<innr>.*?)<\/\1>/', $innr, $snippets, PREG_SET_ORDER, 0); // inner templates
+			preg_match_all('/<(?P<tag>\w+)[^>]*oggeh-album[^>]*>(?P<innr>.*?)<\/\1>/', $innr, $albums, PREG_SET_ORDER, 0); // inner templates
 			preg_match_all('/<(?P<tag>\w+)[^>]*oggeh-search[^>]*>(?P<innr>.*?)<\/\1>/', $innr, $search, PREG_SET_ORDER, 0); // inner search results templates
 			$html = '';
 			switch ($opts->method) {
@@ -1185,6 +1311,13 @@
 					}
 				} else {
 					$html = '[unable to find marckup for search results]';
+				}
+				break;
+				case 'get.albums':
+				if ($albums) {
+					$html .= $this->album($albums, $output);
+				} else {
+					$html = '[unable to find marckup for albums]';
 				}
 				break;
 				default:
@@ -1238,10 +1371,24 @@
 			$html = preg_replace('#\soggeh-field#', '', $html);
 			$html = preg_replace('#\soggeh-static#', '', $html);
 			$html = preg_replace('#\soggeh-snippet#', '', $html);
+			$html = preg_replace('#\soggeh-album#', '', $html);
 			$html = preg_replace('#\soggeh-search#', '', $html);
 			$html = preg_replace('#\s(inject)="[^"]+"#', '', $html);
 			$html = preg_replace('#(?:[\r\n]+)#s', '<br />', $html);
 			return $html;
+		}
+		/*
+		 * Get country code by language code
+		 * @param string $code language code
+		 * @return string
+		 */
+		function getCountryCodeByLang($code) {
+	    foreach ($this->locale as $loc) {
+        if (stristr($loc['lang'], strtolower($code).'-') && !is_numeric($loc['territory'])) {
+          return strtolower($loc['territory']);
+        }
+	    }
+	    return '';
 		}
 		/*
 		 * Set url parameters in template
@@ -1271,6 +1418,7 @@
 					} else {
 						$replace = '/'.$switch['lang'][$idx].'/';
 					}
+					$replace = str_replace('$', '{$}', $replace);
 					$html = preg_replace('/'.$regex.'/', $replace, $html);
 				}
 			}
@@ -1298,6 +1446,7 @@
 			libxml_use_internal_errors(true);
 			$dom->loadHTML(mb_convert_encoding($tpl, 'HTML-ENTITIES', 'UTF-8'));
 			libxml_use_internal_errors(false);
+			$active_set = false;
 			foreach ($dom->getElementsByTagName('*') as $node) {
 				if ($node->hasAttribute('oggeh-match')) {
 					$match = $node->getAttribute('oggeh-match');
@@ -1311,10 +1460,17 @@
 							$module = $key[0];
 							$key = $key[1];
 						}
-						if ($this->url_module == $module || $this->url_child_id == $key) {
+						if ($this->url_module == $module || $this->url_child_id == $key || is_numeric($module)) {
 							if ($node->hasAttribute('class')) {
 								$classes = $node->getAttribute('class');
-								$node->setAttribute('class', $classes.' '.$class);
+								if (is_numeric($module)) {
+									if (!$active_set) {
+										$active_set = true;
+										$node->setAttribute('class', $classes.' '.$class);
+									}
+								} else {
+									$node->setAttribute('class', $classes.' '.$class);
+								}
 							} else {
 								$node->setAttribute('class', $class);
 							}
@@ -1337,7 +1493,7 @@
 			$lock = false;
 			$html = '';
 			$tpls = array();
-			if ($this->published && is_file(self::$tpl_dir.'/header.html')) {
+			if ($this->url_module != 'inactive' && $this->published && is_file(self::$tpl_dir.'/header.html')) {
 				$tpls[] = self::$tpl_dir.'/header.html';
 			}
 			if (in_array($this->url_module, $locked_modules)) {
@@ -1387,7 +1543,9 @@
 			if (!$lock) {
 				if ($this->published) {
 					if ($this->url_child_id != '') {
-						if (is_file(self::$tpl_dir.'/'.$this->url_module.'.single.html')) {
+						if ($this->url_extra_id != '' && is_file(self::$tpl_dir.'/'.$this->url_module.'.'.$this->url_child_id.'.html')) {
+							$tpls[] = self::$tpl_dir.'/'.$this->url_module.'.'.$this->url_child_id.'.html';
+						} elseif (is_file(self::$tpl_dir.'/'.$this->url_module.'.single.html')) {
 							$tpls[] = self::$tpl_dir.'/'.$this->url_module.'.single.html';
 						} elseif (is_file(self::$tpl_dir.'/'.$this->url_module.'.html')) {
 							$tpls[] = self::$tpl_dir.'/'.$this->url_module.'.html';
@@ -1409,7 +1567,7 @@
 					$tpls[] =self::$tpl_dir.'/'.$this->url_module.'.html';
 				}
 			}
-			if ($this->published && is_file(self::$tpl_dir.'/footer.html')) {
+			if ($this->url_module != 'inactive' && $this->published && is_file(self::$tpl_dir.'/footer.html')) {
 				$tpls[] = self::$tpl_dir.'/footer.html';
 			}
 			if ($html == '') {
