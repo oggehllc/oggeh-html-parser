@@ -5,17 +5,17 @@ This is a free client library introduces our custom HTML tag `<oggeh />` for aut
 ## Getting Started
 
 1. First, you need to enter your App API Key in `index.php`
-```
+```php
 OGGEH::configure('domain', 'domain.ltd');
 OGGEH::configure('api_key', '[APP_API_KEY]');
 ```
 2. For local environment, you need to enter your App API Secret as well in `index.php`, and set _sandbox_ setting to `true`
-```
+```php
 OGGEH::configure('api_secret', '[APP_API_SECRET]');
 OGGEH::configure('sandbox', true);
 ```
 3. Optionally, you can configure your own Frontend dictionary for translating page custom model attributes as follows:
-```
+```php
 OGGEH::configure('i18n', array(
   'category'=>array(
     'en'=>'Category',
@@ -74,7 +74,7 @@ Our custom HTML tag `<oggeh />` can be used as follows:
 * `$oggeh-clone-repeat`: has a copy of the preceding element which has `oggeh-repeat` flag (_check building App navigation below_).
 
 #### 2. Inline arrtibutes forms the request body (_the parser converts those into JSON later_), for example, the following attributes:
-```
+```html
 <oggeh method="get.app" select="title,meta" />
 ```
 Simulates the following request:
@@ -83,18 +83,18 @@ curl -H "Content-Type: application/json" -X POST -d '[{"method":"get.app","selec
 ```
 
 #### 3. For printing a single value, you can just use a self-closing tag, where the API response will be a string:
-```
+```html
 <oggeh method="get.app" select="title" />
 ```
 Or you can grab your `select` parameters as variables:
-```
+```html
 <oggeh method="get.app" select="title">
 	<h2>{$title}</h2>
 </oggeh>
 ```
 
 #### 4. For iterating over API response, use `oggeh-repeat` inline flag as follows:
-```
+```html
 <oggeh method="get.page" key="{$param1}" select="blocks" block-type="rte">
   <p oggeh-repeat>
     {$html}
@@ -109,7 +109,7 @@ Where the variable `$html` is a direct property of each iteration of your target
 There are more to the above iterating approach:
 
 ##### a. If the response is an object (_or an associative array_), use `$var.key` and `$var.value` instead, where `$var` is your target selection, for example:
-```
+```html
 <oggeh method="get.app" select="social">
   <ul class="icons">
     <li oggeh-repeat><a href="{$social.value}" class="icon fa-{$social.key}"><span class="label">{$social.key}</span></a></li>
@@ -118,7 +118,7 @@ There are more to the above iterating approach:
 ```
 
 ##### b. If the response is a simple array (_elements are not objects_), use `$` instead, for example:
-```
+```html
 <oggeh method="get.app" select="languages">
   <p class="lang" oggeh-repeat>
     {$}
@@ -126,7 +126,7 @@ There are more to the above iterating approach:
 </oggeh>
 ```
 	In the above example, you might want to create a language switcher, which maintains the current URL, just changes the language code. In order to do so, use `$oggeh-switch` variable as follows:
-```
+```html
 <oggeh method="get.app" select="languages">
   <p class="lang" oggeh-repeat>
     <a href="{$oggeh-switch|$}">
@@ -138,7 +138,7 @@ There are more to the above iterating approach:
 Where `$flag` is an optional variable, which you can use to map the language code to a country code (_defined at locale.json_).
 
 ##### c. If you want to iterate over a specific property at the API response, use the `iterate` attribute to specify that property, for example:
-```
+```html
 <oggeh method="get.album" label="{$param2}" select="caption,thumbnail,regular" iterate="items">
   <div oggeh-repeat>
     <a href="{$regular.url}">
@@ -153,7 +153,7 @@ Where `$flag` is an optional variable, which you can use to map the language cod
 #### 5. For building your navigation links, you might want to:
 
 ##### a. Mark the current page as `active`, for that use the property `oggeh-match` anywhere inside your inner markup as follows:
-```
+```html
 <oggeh method="get.pages" select="key,subject">
   <li>
     <a href="/{$lang}/" oggeh-match="home|active">{$oggeh-phrase|home}</a>
@@ -165,7 +165,7 @@ The above example will add a class name `active` to the anchor tag only if the U
 	`NOTE: using variables in property `oggeh-match` works only in inner html, not on the repeatable item itself.`
 
 ##### b. Nest items dynamically (_to match the pages tree at the CMS_), for that use `oggeh-nest` inline flag, along with the special variable `$oggeh-clone-repeat`. It has a copy of the preceding element which has `oggeh-repeat` flag, for example:
-```
+```html
 <oggeh method="get.pages" select="key,subject">
 	<li oggeh-repeat>
     <a href="/{$lang}/page/{$key}" oggeh-match="page/{$key}|active">{$subject}</a>
@@ -186,7 +186,7 @@ The above example will add a class name `active` to the anchor tag only if the U
 	`NOTE: always use unique block snippet parent tag (_do not reuse in child tags_).`
 
 The parser automatically iterates over the proper target at the API response, for example:
-```
+```html
 <oggeh method="get.page" key="{$param1}" select="blocks">
   <article class="{$size_x}u 12u$(small)" type="rte" oggeh-snippet>
     <p oggeh-repeat>
@@ -245,7 +245,7 @@ There is 2 additional property you can use to mark each field:
 	`NOTE: conditional inline tag class inject works only in inner html (_not applying to control_).`
 
 The parser automatically iterates over the proper target at the API response, for example:
-```
+```html
 <oggeh method="get.page" key="{$param1}" select="blocks" block-type="form" iterate="form">
   <form method="post" action="{$endpoint}/?api_key={$api_key}&lang={$lang}">
     <div type="text" subtype="text" inject="validate-required|required" oggeh-field>
@@ -291,7 +291,7 @@ We recommend that to include an `oggeh-field` without specifying its type, that 
 ### Examples
 
 ### App Navigation Example
-```
+```html
 <oggeh method="get.pages" select="key,subject">
   <li>
     <a href="/{$lang}/" oggeh-match="home|active">{$oggeh-phrase|home}</a>
@@ -320,12 +320,12 @@ We recommend that to include an `oggeh-field` without specifying its type, that 
 ```
 
 ### Only Page Subject Example
-```
+```html
 <oggeh method="get.page" key="{$param1}" select="subject" />
 ```
 
 ### Only Page Custom Model Attributes Example
-```
+```html
 <oggeh method="get.page" key="{$param1}" select="model" iterate="model">
   <blockquote>
     <ul class="alt">
@@ -338,7 +338,7 @@ We recommend that to include an `oggeh-field` without specifying its type, that 
 ```
 
 ### Page Blocks Example
-```
+```html
 <oggeh method="get.page" key="{$param1}" select="blocks">
   <!-- NOTE: always use unique block snippet parent tag (do not reuse in child tags) -->
   <article class="{$size_x}u 12u$(small)" type="rte" oggeh-snippet>
@@ -414,7 +414,7 @@ We recommend that to include an `oggeh-field` without specifying its type, that 
 ```
 
 ### Only Page Rich Text Blocks Example
-```
+```html
 <oggeh method="get.page" key="{$param1}" select="blocks" block-type="rte">
   <p oggeh-repeat>
     {$html}
@@ -423,7 +423,7 @@ We recommend that to include an `oggeh-field` without specifying its type, that 
 ```
 
 ### Only Page Photos Example
-```
+```html
 <oggeh method="get.page" key="{$param1}" select="photos">
   <ul>
     <li oggeh-repeat>
@@ -446,7 +446,7 @@ We recommend that to include an `oggeh-field` without specifying its type, that 
 ```
 
 ### Page Form Example
-```
+```html
 <oggeh method="get.page" key="{$param1}" select="blocks" block-type="form" iterate="form">
   <form method="post" action="{$endpoint}/?api_key={$api_key}&lang={$lang}" data-success="{$oggeh-phrase|form-success}" data-error="{$oggeh-phrase|form-error}">
     <!-- NOTE: always use unique field parent tag (do not reuse in child tags) -->
