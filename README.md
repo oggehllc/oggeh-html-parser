@@ -1,10 +1,9 @@
 # OGGEH HTML Parser
-=============
 
 This is a free client library introduces our custom HTML tag `<oggeh />` for automating our Content Delivery API. Perfect for skills limited to HTML and CSS only.
 
 ## Getting Started
--------
+
 1. First, you need to enter your App API Key in `index.php`
 ```
 OGGEH::configure('domain', 'domain.ltd');
@@ -35,7 +34,6 @@ OGGEH::configure('i18n', array(
 5. Preview example template in browser at http://app.domain.ltd
 
 ## How it Works
--------
 
 The library has `.htaccess` file which redirects all requests at your Frontend Template to the above index file as follows:
 ```
@@ -51,15 +49,16 @@ domain.ltd | Your App domain as entered during creation.
 :param2 | Represents an extra parameter to the selected model.
 
 The library maps each model from your Frontend Request URL above to an HTML template file inside the _tpl_ directory.
+
 As of the home page, you need to keep a default HTML file _tpl/home.html_.
-For rendering single news post _tpl/news.single.html_.
-For rendering single photo album _tpl/album.photo.html_.
-For rendering single audio album _tpl/album.audio.html_.
-For rendering single video album _tpl/album.video.html_.
-For rendering single file album _tpl/album.file.html_.
-You can use _tpl/header.html_ and _tpl/footer.html_ as well, and the library will automatically wrap those around the rest of your HTML template files.
-You can use _tpl/404.html_ for invalid requests.
-You can use _tpl/inactive.html_ to be displayed when your App is not in production mode.
+	* For rendering single news post _tpl/news.single.html_.
+	* For rendering single photo album _tpl/album.photo.html_.
+	* For rendering single audio album _tpl/album.audio.html_.
+	* For rendering single video album _tpl/album.video.html_.
+	* For rendering single file album _tpl/album.file.html_.
+	* You can use _tpl/header.html_ and _tpl/footer.html_ as well, and the library will automatically wrap those around the rest of your HTML template files.
+	* You can use _tpl/404.html_ for invalid requests.
+	* You can use _tpl/inactive.html_ to be displayed when your App is not in production mode.
 
 ### Usage
 
@@ -99,11 +98,12 @@ Or you can grab your `select` parameters as variables:
   </p>
 </oggeh>
 ```
-	Where the variable `$html` is a direct property of each iteration of your target `blocks` at the API response.
+	
+Where the variable `$html` is a direct property of each iteration of your target `blocks` at the API response.
 
 	`NOTE: always use unique block snippet parent tag (_do not reuse in child tags_).`
 
-	There are more to the above iterating approach:
+There are more to the above iterating approach:
 	* If the response is an object (_or an associative array_), use `$var.key` and `$var.value` instead, where `$var` is your target selection, for example:
 ```
 <oggeh method="get.app" select="social">
@@ -130,7 +130,7 @@ Or you can grab your `select` parameters as variables:
   </p>
 </oggeh>
 ```
-	Where `$flag` is an optional variable, which you can use to map the language code to a country code (_defined at locale.json_).
+Where `$flag` is an optional variable, which you can use to map the language code to a country code (_defined at locale.json_).
 	* If you want to iterate over a specific property at the API response, use the `iterate` attribute to specify that property, for example:
 ```
 <oggeh method="get.album" label="{$param2}" select="caption,thumbnail,regular" iterate="items">
@@ -152,7 +152,7 @@ Or you can grab your `select` parameters as variables:
   </li>
 </oggeh>
 ```
-	The above example will add a class name `active` to the anchor tag only if the URL `:module` matches `home`.
+The above example will add a class name `active` to the anchor tag only if the URL `:module` matches `home`.
 
 	`NOTE: using variables in property `oggeh-match` works only in inner html, not on the repeatable item itself.`
 
@@ -176,7 +176,7 @@ Or you can grab your `select` parameters as variables:
 	
 	`NOTE: always use unique block snippet parent tag (_do not reuse in child tags_).`
 
-	The parser automatically iterates over the proper target at the API response, for example:
+The parser automatically iterates over the proper target at the API response, for example:
 ```
 <oggeh method="get.page" key="{$param1}" select="blocks">
   <article class="{$size_x}u 12u$(small)" type="rte" oggeh-snippet>
@@ -220,7 +220,7 @@ Or you can grab your `select` parameters as variables:
   </article>
 </oggeh>
 ```
-	Where the variable `$size_x` represents the column size for each snippet (_12 columns grid_).
+Where the variable `$size_x` represents the column size for each snippet (_12 columns grid_).
 7. For building you page form, use `oggeh-field` inline flag to describe your custom markup for each form field type, and use `oggeh-static` inline flag to describe your custom markup for any additional markup you want to add (_like `submit` and `reset` buttons_). There are 3 additional variables you can use to print each field:
 	* Field `$name` variable: represents field name (_plain text_).
 	* Field `$label` variable: represents field label (_plain text_).
@@ -228,13 +228,13 @@ Or you can grab your `select` parameters as variables:
 	
 	`NOTE: always use unique field parent tag (_do not reuse in child tags_).`
 
-	There is 2 additional property you can use to mark each field:
+There is 2 additional property you can use to mark each field:
 	* Field `subtype` property: accepts `text`, `email`, `password`, `number` or `color`.
 	* Field `inject` property: add custom classes to the target tag, and might accept a single condition to be applied `required`, `toggle`, or any other boolean attribute at the API response.
 
 	`NOTE: conditional inline tag class inject works only in inner html (_not applying to control_).`
 
-	The parser automatically iterates over the proper target at the API response, for example:
+The parser automatically iterates over the proper target at the API response, for example:
 ```
 <oggeh method="get.page" key="{$param1}" select="blocks" block-type="form" iterate="form">
   <form method="post" action="{$endpoint}/?api_key={$api_key}&lang={$lang}">
@@ -276,10 +276,9 @@ Or you can grab your `select` parameters as variables:
   </form>
 </oggeh>
 ```
-	We recommend that to include an `oggeh-field` without specifying its type, that markup will be used as the default wrapper for any missing type.
+We recommend that to include an `oggeh-field` without specifying its type, that markup will be used as the default wrapper for any missing type.
 
 ### Examples
--------
 
 ### App Navigation Example
 ```
@@ -488,11 +487,10 @@ Or you can grab your `select` parameters as variables:
 ```
 
 ## API Documentation
--------
+
 See [API Reference](http://docs.oggeh.local/#reference-section) for additional details on available values for _select_ attribute on each API Method.
 
 ## Template in Use
--------
 
 ### Editorial by HTML5 UP
 
