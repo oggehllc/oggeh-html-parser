@@ -33,6 +33,11 @@ OGGEH::configure('i18n', array(
 ```
 5. Preview example template in browser at http://app.domain.ltd
 
+## IMPORTANT
+
+	You should not use Sandbox headers in production mode to avoid blocking your App along with your Developer Account for violating our terms and conditions!
+	If you're planning to use this example, remove the `SandBox` header from JavaScript (assets/js/main.js @line 70)
+
 ## How it Works
 
 The library has `.htaccess` file which redirects all requests at your Frontend Template to the above index file as follows:
