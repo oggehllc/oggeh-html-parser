@@ -64,7 +64,7 @@ As of the home page, you need to keep a default HTML file _tpl/home.html_.
 
 Our custom HTML tag `<oggeh />` can be used as follows:
 
-1. General variables available are:
+#### 1. General variables available are:
 	* `$lang`: URL first parameter (_check URL segments above_).
 	* `$module`: URL second parameter (_check URL segments above_).
 	* `$param1`: URL third parameter (_check URL segments above_).
@@ -72,7 +72,8 @@ Our custom HTML tag `<oggeh />` can be used as follows:
 	* `$oggeh-phrase`: translates specific key from your own Frontend dictionary (_{$oggeh-phrase|phrase-custom-key}_).
 	* `$flag`: maps the language code to a country code (_defined at locale.json_).
 	* `$oggeh-clone-repeat`: has a copy of the preceding element which has `oggeh-repeat` flag (_check building App navigation below_).
-2. Inline arrtibutes forms the request body (_the parser converts those into JSON later_), for example, the following attributes:
+
+#### 2. Inline arrtibutes forms the request body (_the parser converts those into JSON later_), for example, the following attributes:
 ```
 <oggeh method="get.app" select="title,meta" />
 ```
@@ -80,7 +81,8 @@ Simulates the following request:
 ```
 curl -H "Content-Type: application/json" -X POST -d '[{"method":"get.app","select":"title,meta"}]' https://api.oggeh.com/?api_key=[APP_API_KEY]&lang=en
 ```
-3. For printing a single value, you can just use a self-closing tag, where the API response will be a string:
+
+#### 3. For printing a single value, you can just use a self-closing tag, where the API response will be a string:
 ```
 <oggeh method="get.app" select="title" />
 ```
@@ -90,7 +92,8 @@ Or you can grab your `select` parameters as variables:
 	<h2>{$title}</h2>
 </oggeh>
 ```
-4. For iterating over API response, use `oggeh-repeat` inline flag as follows:
+
+#### 4. For iterating over API response, use `oggeh-repeat` inline flag as follows:
 ```
 <oggeh method="get.page" key="{$param1}" select="blocks" block-type="rte">
   <p oggeh-repeat>
@@ -104,7 +107,8 @@ Where the variable `$html` is a direct property of each iteration of your target
 	`NOTE: always use unique block snippet parent tag (_do not reuse in child tags_).`
 
 There are more to the above iterating approach:
-	* If the response is an object (_or an associative array_), use `$var.key` and `$var.value` instead, where `$var` is your target selection, for example:
+
+##### If the response is an object (_or an associative array_), use `$var.key` and `$var.value` instead, where `$var` is your target selection, for example:
 ```
 <oggeh method="get.app" select="social">
   <ul class="icons">
@@ -112,7 +116,8 @@ There are more to the above iterating approach:
   </ul>
 </oggeh>
 ```
-	* If the response is a simple array (_elements are not objects_), use `$` instead, for example:
+
+##### If the response is a simple array (_elements are not objects_), use `$` instead, for example:
 ```
 <oggeh method="get.app" select="languages">
   <p class="lang" oggeh-repeat>
@@ -131,7 +136,8 @@ There are more to the above iterating approach:
 </oggeh>
 ```
 Where `$flag` is an optional variable, which you can use to map the language code to a country code (_defined at locale.json_).
-	* If you want to iterate over a specific property at the API response, use the `iterate` attribute to specify that property, for example:
+
+##### If you want to iterate over a specific property at the API response, use the `iterate` attribute to specify that property, for example:
 ```
 <oggeh method="get.album" label="{$param2}" select="caption,thumbnail,regular" iterate="items">
   <div oggeh-repeat>
@@ -143,8 +149,10 @@ Where `$flag` is an optional variable, which you can use to map the language cod
   </div>
 </oggeh>
 ```
-5. For building your navigation links, you might want to:
-	* Mark the current page as `active`, for that use the property `oggeh-match` anywhere inside your inner markup as follows:
+
+#### 5. For building your navigation links, you might want to:
+
+##### Mark the current page as `active`, for that use the property `oggeh-match` anywhere inside your inner markup as follows:
 ```
 <oggeh method="get.pages" select="key,subject">
   <li>
@@ -156,7 +164,7 @@ The above example will add a class name `active` to the anchor tag only if the U
 
 	`NOTE: using variables in property `oggeh-match` works only in inner html, not on the repeatable item itself.`
 
-	* Nest items dynamically (_to match the pages tree at the CMS_), for that use `oggeh-nest` inline flag, along with the special variable `$oggeh-clone-repeat`. It has a copy of the preceding element which has `oggeh-repeat` flag, for example:
+##### Nest items dynamically (_to match the pages tree at the CMS_), for that use `oggeh-nest` inline flag, along with the special variable `$oggeh-clone-repeat`. It has a copy of the preceding element which has `oggeh-repeat` flag, for example:
 ```
 <oggeh method="get.pages" select="key,subject">
 	<li oggeh-repeat>
@@ -170,7 +178,8 @@ The above example will add a class name `active` to the anchor tag only if the U
   </li>
 </oggeh>
 ```
-6. For building your page blocks matching the same grid layout at the CMS, use `oggeh-snippet` inline flag to describe your custom markup for each block type. There are 2 additional properties you can use to mark each snippet:
+
+#### 6. For building your page blocks matching the same grid layout at the CMS, use `oggeh-snippet` inline flag to describe your custom markup for each block type. There are 2 additional properties you can use to mark each snippet:
 	* Block `type` property: accepts `rte`, `media`, `files`, or `table`.
 	* Media block `filter` property: accepts `photo`, `audio`, or `video`.
 	
@@ -221,7 +230,8 @@ The parser automatically iterates over the proper target at the API response, fo
 </oggeh>
 ```
 Where the variable `$size_x` represents the column size for each snippet (_12 columns grid_).
-7. For building you page form, use `oggeh-field` inline flag to describe your custom markup for each form field type, and use `oggeh-static` inline flag to describe your custom markup for any additional markup you want to add (_like `submit` and `reset` buttons_). There are 3 additional variables you can use to print each field:
+
+#### 7. For building you page form, use `oggeh-field` inline flag to describe your custom markup for each form field type, and use `oggeh-static` inline flag to describe your custom markup for any additional markup you want to add (_like `submit` and `reset` buttons_). There are 3 additional variables you can use to print each field:
 	* Field `$name` variable: represents field name (_plain text_).
 	* Field `$label` variable: represents field label (_plain text_).
 	* Field `$control` variable: represents field HTML markup (_HTML text_).
