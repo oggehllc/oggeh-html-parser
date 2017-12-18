@@ -104,7 +104,7 @@ Or you can grab your `select` parameters as variables:
 	
 Where the variable `$html` is a direct property of each iteration of your target `blocks` at the API response.
 
-	NOTE: always use unique block snippet parent tag (_do not reuse in child tags_).
+	NOTE: always use unique block snippet parent tag (do not reuse in child tags).
 
 There are more to the above iterating approach:
 
@@ -183,7 +183,7 @@ The above example will add a class name `active` to the anchor tag only if the U
 * Block `type` property: accepts `rte`, `media`, `files`, or `table`.
 * Media block `filter` property: accepts `photo`, `audio`, or `video`.
 	
-	NOTE: always use unique block snippet parent tag (_do not reuse in child tags_).
+	NOTE: always use unique block snippet parent tag (do not reuse in child tags).
 
 The parser automatically iterates over the proper target at the API response, for example:
 ```html
@@ -236,13 +236,13 @@ Where the variable `$size_x` represents the column size for each snippet (_12 co
 * Field `$label` variable: represents field label (_plain text_).
 * Field `$control` variable: represents field HTML markup (_HTML text_).
 	
-	NOTE: always use unique field parent tag (_do not reuse in child tags_).
+	NOTE: always use unique field parent tag (do not reuse in child tags).
 
 There is 2 additional property you can use to mark each field:
 * Field `subtype` property: accepts `text`, `email`, `password`, `number` or `color`.
 * Field `inject` property: add custom classes to the target tag, and might accept a single condition to be applied `required`, `toggle`, or any other boolean attribute at the API response.
 
-	NOTE: conditional inline tag class inject works only in inner html (_not applying to control_).
+	NOTE: conditional inline tag class inject works only in inner html (not applying to control).
 
 The parser automatically iterates over the proper target at the API response, for example:
 ```html
