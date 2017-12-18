@@ -508,8 +508,7 @@ See [API Reference](http://docs.oggeh.com/#reference-section) for additional det
 [Creative Commons Attribution 3.0](https://html5up.net/license)
 
 **Template Credits**
-Built by [AJ](https://twitter.com/ajlkn)
-Modified by [OGGEH Cloud Computing](https://dev.oggeh.com)
+Built by [AJ](https://twitter.com/ajlkn) - Modified by [OGGEH Cloud Computing](https://dev.oggeh.com)
 
 ### Photos used
 [unsplush.com](http://unsplush.com)
