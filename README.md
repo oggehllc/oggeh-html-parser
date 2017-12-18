@@ -104,7 +104,7 @@ Or you can grab your `select` parameters as variables:
 	
 Where the variable `$html` is a direct property of each iteration of your target `blocks` at the API response.
 
-	`NOTE: always use unique block snippet parent tag (_do not reuse in child tags_).`
+	NOTE: always use unique block snippet parent tag (_do not reuse in child tags_).
 
 There are more to the above iterating approach:
 
@@ -162,7 +162,7 @@ Where `$flag` is an optional variable, which you can use to map the language cod
 ```
 The above example will add a class name `active` to the anchor tag only if the URL `:module` matches `home`.
 
-	`NOTE: using variables in property `oggeh-match` works only in inner html, not on the repeatable item itself.`
+	NOTE: using variables in property `oggeh-match` works only in inner html, not on the repeatable item itself.
 
 ##### b. Nest items dynamically (_to match the pages tree at the CMS_), for that use `oggeh-nest` inline flag, along with the special variable `$oggeh-clone-repeat`. It has a copy of the preceding element which has `oggeh-repeat` flag, for example:
 ```html
@@ -183,7 +183,7 @@ The above example will add a class name `active` to the anchor tag only if the U
 * Block `type` property: accepts `rte`, `media`, `files`, or `table`.
 * Media block `filter` property: accepts `photo`, `audio`, or `video`.
 	
-	`NOTE: always use unique block snippet parent tag (_do not reuse in child tags_).`
+	NOTE: always use unique block snippet parent tag (_do not reuse in child tags_).
 
 The parser automatically iterates over the proper target at the API response, for example:
 ```html
@@ -236,13 +236,13 @@ Where the variable `$size_x` represents the column size for each snippet (_12 co
 * Field `$label` variable: represents field label (_plain text_).
 * Field `$control` variable: represents field HTML markup (_HTML text_).
 	
-	`NOTE: always use unique field parent tag (_do not reuse in child tags_).`
+	NOTE: always use unique field parent tag (_do not reuse in child tags_).
 
 There is 2 additional property you can use to mark each field:
 * Field `subtype` property: accepts `text`, `email`, `password`, `number` or `color`.
 * Field `inject` property: add custom classes to the target tag, and might accept a single condition to be applied `required`, `toggle`, or any other boolean attribute at the API response.
 
-	`NOTE: conditional inline tag class inject works only in inner html (_not applying to control_).`
+	NOTE: conditional inline tag class inject works only in inner html (_not applying to control_).
 
 The parser automatically iterates over the proper target at the API response, for example:
 ```html
