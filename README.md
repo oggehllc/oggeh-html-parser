@@ -108,7 +108,7 @@ Where the variable `$html` is a direct property of each iteration of your target
 
 There are more to the above iterating approach:
 
-##### If the response is an object (_or an associative array_), use `$var.key` and `$var.value` instead, where `$var` is your target selection, for example:
+##### a. If the response is an object (_or an associative array_), use `$var.key` and `$var.value` instead, where `$var` is your target selection, for example:
 ```
 <oggeh method="get.app" select="social">
   <ul class="icons">
@@ -117,7 +117,7 @@ There are more to the above iterating approach:
 </oggeh>
 ```
 
-##### If the response is a simple array (_elements are not objects_), use `$` instead, for example:
+##### b. If the response is a simple array (_elements are not objects_), use `$` instead, for example:
 ```
 <oggeh method="get.app" select="languages">
   <p class="lang" oggeh-repeat>
@@ -137,7 +137,7 @@ There are more to the above iterating approach:
 ```
 Where `$flag` is an optional variable, which you can use to map the language code to a country code (_defined at locale.json_).
 
-##### If you want to iterate over a specific property at the API response, use the `iterate` attribute to specify that property, for example:
+##### c. If you want to iterate over a specific property at the API response, use the `iterate` attribute to specify that property, for example:
 ```
 <oggeh method="get.album" label="{$param2}" select="caption,thumbnail,regular" iterate="items">
   <div oggeh-repeat>
@@ -152,7 +152,7 @@ Where `$flag` is an optional variable, which you can use to map the language cod
 
 #### 5. For building your navigation links, you might want to:
 
-##### Mark the current page as `active`, for that use the property `oggeh-match` anywhere inside your inner markup as follows:
+##### a. Mark the current page as `active`, for that use the property `oggeh-match` anywhere inside your inner markup as follows:
 ```
 <oggeh method="get.pages" select="key,subject">
   <li>
@@ -164,7 +164,7 @@ The above example will add a class name `active` to the anchor tag only if the U
 
 	`NOTE: using variables in property `oggeh-match` works only in inner html, not on the repeatable item itself.`
 
-##### Nest items dynamically (_to match the pages tree at the CMS_), for that use `oggeh-nest` inline flag, along with the special variable `$oggeh-clone-repeat`. It has a copy of the preceding element which has `oggeh-repeat` flag, for example:
+##### b. Nest items dynamically (_to match the pages tree at the CMS_), for that use `oggeh-nest` inline flag, along with the special variable `$oggeh-clone-repeat`. It has a copy of the preceding element which has `oggeh-repeat` flag, for example:
 ```
 <oggeh method="get.pages" select="key,subject">
 	<li oggeh-repeat>
@@ -498,7 +498,7 @@ We recommend that to include an `oggeh-field` without specifying its type, that 
 
 ## API Documentation
 
-See [API Reference](http://docs.oggeh.local/#reference-section) for additional details on available values for _select_ attribute on each API Method.
+See [API Reference](http://docs.oggeh.com/#reference-section) for additional details on available values for _select_ attribute on each API Method.
 
 ## Template in Use
 
@@ -509,6 +509,7 @@ See [API Reference](http://docs.oggeh.local/#reference-section) for additional d
 
 **Template Credits**
 Built by [AJ](https://twitter.com/ajlkn)
+Modified by [OGGEH Cloud Computing](https://dev.oggeh.com)
 
 ### Photos used
 [unsplush.com](http://unsplush.com)
