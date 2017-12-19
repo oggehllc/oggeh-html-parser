@@ -330,7 +330,7 @@ The parser automatically iterates over the proper target at the API response, fo
 
 ### Examples
 
-### App Navigation Example
+#### App Navigation Example
 ```html
 <oggeh method="get.pages" select="key,subject">
   <li>
@@ -359,12 +359,12 @@ The parser automatically iterates over the proper target at the API response, fo
 </oggeh>
 ```
 
-### Only Page Subject Example
+#### Only Page Subject Example
 ```html
 <oggeh method="get.page" key="{$param1}" select="subject" />
 ```
 
-### Only Page Custom Model Attributes Example
+#### Only Page Custom Model Attributes Example
 ```html
 <oggeh method="get.page" key="{$param1}" select="model" iterate="model">
   <blockquote>
@@ -377,7 +377,7 @@ The parser automatically iterates over the proper target at the API response, fo
 </oggeh>
 ```
 
-### Page Blocks Example
+#### Page Blocks Example
 ```html
 <oggeh method="get.page" key="{$param1}" select="blocks">
   <!-- NOTE: always use unique block snippet parent tag (do not reuse in child tags) -->
@@ -453,7 +453,7 @@ The parser automatically iterates over the proper target at the API response, fo
 </oggeh>
 ```
 
-### Only Page Rich Text Blocks Example
+#### Only Page Rich Text Blocks Example
 ```html
 <oggeh method="get.page" key="{$param1}" select="blocks" block-type="rte">
   <p oggeh-repeat>
@@ -462,7 +462,7 @@ The parser automatically iterates over the proper target at the API response, fo
 </oggeh>
 ```
 
-### Only Page Photos Example
+#### Only Page Photos Example
 ```html
 <oggeh method="get.page" key="{$param1}" select="photos">
   <ul>
@@ -485,7 +485,7 @@ The parser automatically iterates over the proper target at the API response, fo
 </oggeh>
 ```
 
-### Page Form Example
+#### Page Form Example
 ```html
 <oggeh method="get.page" key="{$param1}" select="blocks" block-type="form" iterate="form">
   <form method="post" action="{$endpoint}/?api_key={$api_key}&lang={$lang}" data-success="{$oggeh-phrase|form-success}" data-error="{$oggeh-phrase|form-error}">
@@ -536,7 +536,7 @@ The parser automatically iterates over the proper target at the API response, fo
 </oggeh>
 ```
 
-### Albums Example
+#### Albums Example
 ```html
 <oggeh method="get.albums" select="media,label,cover">
   <!-- NOTE: always use unique block snippet parent tag (do not reuse in child tags) -->
