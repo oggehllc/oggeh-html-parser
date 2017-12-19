@@ -130,7 +130,7 @@ There are more to the above iterating approach:
   </p>
 </oggeh>
 ```
-	In the above example, you might want to create a language switcher, which maintains the current URL, just changes the language code. In order to do so, use `$oggeh-switch` variable as follows:
+In the above example, you might want to create a language switcher, which maintains the current URL, just changes the language code. In order to do so, use `$oggeh-switch` variable as follows:
 ```html
 <oggeh method="get.app" select="languages">
   <p class="lang" oggeh-repeat>
@@ -292,6 +292,41 @@ The parser automatically iterates over the proper target at the API response, fo
 </oggeh>
 ```
 We recommend that to include an `oggeh-field` without specifying its type, that markup will be used as the default wrapper for any missing type.
+
+#### 8. For building your albums, use `oggeh-album` inline flag to describe your custom markup for each album media type. There are 1 additional property you can use to mark each snippet:
+* Album type `media` property: accepts `photo`, `audio`,`video`, or `file`.
+  
+  NOTE: always use unique block snippet parent tag (do not reuse in child tags).
+
+The parser automatically iterates over the proper target at the API response, for example:
+```html
+<oggeh method="get.albums" select="media,label,cover">
+  <div media="photo" oggeh-album>
+    <a href="/{$lang}/album/photo/{$label}">
+      <img src="{$cover.regular.url}" alt="{$label}" />
+      <span>{$label}</span>
+    </a>
+  </div>
+  <div class="4u 12u$(small)" media="audio" oggeh-album>
+    <a href="/{$lang}/album/audio/{$label}">
+      <img src="{$cover.regular.url}" alt="{$label}" />
+      <span>{$label}</span>
+    </a>
+  </div>
+  <div class="4u 12u$(small)" media="video" oggeh-album>
+    <a href="/{$lang}/album/video/{$label}">
+      <img src="{$cover.regular.url}" alt="{$label}" />
+      <span>{$label}</span>
+    </a>
+  </div>
+  <div class="4u 12u$(small)" media="file" oggeh-album>
+    <a href="/{$lang}/album/file/{$label}">
+      <img src="{$cover.regular.url}" alt="{$label}" />
+      <span>{$label}</span>
+    </a>
+  </div>
+</oggeh>
+```
 
 ### Examples
 
@@ -501,13 +536,53 @@ We recommend that to include an `oggeh-field` without specifying its type, that 
 </oggeh>
 ```
 
+### Albums Example
+```html
+<oggeh method="get.albums" select="media,label,cover">
+  <!-- NOTE: always use unique block snippet parent tag (do not reuse in child tags) -->
+  <article class="4u 12u$(small)" media="photo" oggeh-album>
+    <a href="/{$lang}/album/photo/{$label}">
+      <span class="album image fit" data-alt="{$cover.regular.url}">
+        <img src="{$cover.regular.url}" alt="{$label}" />
+        <span>{$label}</span>
+      </span>
+    </a>
+  </article>
+  <article class="4u 12u$(small)" media="audio" oggeh-album>
+    <a href="/{$lang}/album/audio/{$label}">
+      <span class="album image fit" data-alt="{$cover.regular.url}">
+        <img src="{$cover.regular.url}" alt="{$label}" />
+        <span>{$label}</span>
+      </span>
+    </a>
+  </article>
+  <article class="4u 12u$(small)" media="video" oggeh-album>
+    <a href="/{$lang}/album/video/{$label}">
+      <span class="album image fit" data-alt="{$cover.regular.url}">
+        <img src="{$cover.regular.url}" alt="{$label}" />
+        <span>{$label}</span>
+      </span>
+    </a>
+  </article>
+  <article class="4u 12u$(small)" media="file" oggeh-album>
+    <a href="/{$lang}/album/file/{$label}">
+      <span class="album image fit" data-alt="{$cover.regular.url}">
+        <img src="{$cover.regular.url}" alt="{$label}" />
+        <span>{$label}</span>
+      </span>
+    </a>
+  </article>
+</oggeh>
+```
+
 ## API Documentation
 
 See [API Reference](http://docs.oggeh.com/#reference-section) for additional details on available values for _select_ attribute on each API Method.
 
 ## Template in Use
 
-### Editorial by HTML5 UP
+**Template in Use**
+[Editorial by HTML5 UP](https://html5up.net/editorial)
 
 **Template License**
 [Creative Commons Attribution 3.0](https://html5up.net/license)
