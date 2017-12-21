@@ -173,9 +173,11 @@
 			$pieces = parse_url($this->uri);
 			$path = trim($pieces['path'], '/');
 			$segments = explode('/', $path);
+			$url_lang_set = false;
 			if (count($segments)>0) {
 				if (strlen($segments[0])>0) {
 					$this->url_lang = $segments[0];
+					$url_lang_set = true;
 					$this->direction = (in_array($this->url_lang, $this->rtl_langs)) ? 'rtl' : 'ltr';
 				}
 				if (count($segments)>1) {
@@ -201,6 +203,10 @@
       	exit;
       } else {
       	$this->app = $this->app[0]['output'];
+      	if (!$url_lang_set && $this->app && $this->app['default_lang'] != 'en') {
+      		header('Location: /'.$this->app['default_lang']);
+      		exit;
+      	}
 	      $this->published = ($this->app) ? true : false;
 	      if (!$this->published) {
 	      	$this->url_module = 'inactive';
@@ -1489,7 +1495,6 @@
 		 * @return string
 		 */
 		public function display($callback=null) {
-			error_log($this->blank);
 			$lang = $this->url_lang;
 			$locked_modules = self::$locked_modules;
 			$unlock_users = self::$unlock_users;
