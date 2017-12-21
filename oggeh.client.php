@@ -1,7 +1,7 @@
 <?php
 	/*
 	 * OGGEH HTML Parser
-	 * @version 0.3
+	 * @version 0.4
 	 * 
 	 * Author: Ahmed Abbas - OGGEH Cloud Computing LLC - oggeh.com
 	 * License: GNU-GPL v3 (http://www.gnu.org/licenses/gpl.html)
@@ -561,7 +561,7 @@
 		 * @param boolean $convert optional setting to treating one element array as an associative array
 		 * @return string
 		 */
-		protected function repeat($html, $repeat, $nest, $obj, $select, $iterate=null, $convert=true) {
+		protected function repeat($html, $repeat, $nest, $obj, $select=null, $iterate=null, $convert=true) {
 			$select = (stristr($select, ',')) ? explode(',', $select) : $select;
 			if ($html != '') {
 				if (isset($obj[$select]) && is_string($select)) {
@@ -1322,47 +1322,49 @@
 				break;
 				default:
 				$output = (is_array($output) && count($output) == 1 && array_keys($output) === range(0, count($output) - 1)) ? $output[0] : $output; // treating one element array as an associative array
-				if ($opts->select == 'blocks') {
-					if ($opts->block_type == 'form' && $opts->iterate == 'form') {
-						// render form fields
-						if (count($output[$opts->select]) > 0) {
-							if (isset($output[$opts->select][0][$opts->iterate])) {
-								preg_match_all('@<form(?P<options>\s[^>]+)?\s*?>(?P<content>.*?)</form>@xsi', $innr, $form, PREG_SET_ORDER | PREG_OFFSET_CAPTURE); // inner form tag
-								if ($form) {
-									$html = '<form'.$form[0]['options'][0].'>';
-									$html .= '<input type="hidden" name="method" value="post.page.form">';
-									$html .= '<input type="hidden" name="key" value="'.$opts->key.'">';
-									$html .= '<input type="hidden" name="token" value="'.$output[$opts->select][0]['token'].'">';
-									$output = $this->iterate($output[$opts->select], $opts->iterate, 0);
-									$html .= $this->form($fields, $output);
-									if ($statics) {
-										foreach ($statics as $stc) {
-											$html .= $stc[0];
+				if (count($output)) {
+					if ($opts->select == 'blocks') {
+						if ($opts->block_type == 'form' && $opts->iterate == 'form') {
+							// render form fields
+							if (count($output[$opts->select]) > 0) {
+								if (isset($output[$opts->select][0][$opts->iterate])) {
+									preg_match_all('@<form(?P<options>\s[^>]+)?\s*?>(?P<content>.*?)</form>@xsi', $innr, $form, PREG_SET_ORDER | PREG_OFFSET_CAPTURE); // inner form tag
+									if ($form) {
+										$html = '<form'.$form[0]['options'][0].'>';
+										$html .= '<input type="hidden" name="method" value="post.page.form">';
+										$html .= '<input type="hidden" name="key" value="'.$opts->key.'">';
+										$html .= '<input type="hidden" name="token" value="'.$output[$opts->select][0]['token'].'">';
+										$output = $this->iterate($output[$opts->select], $opts->iterate, 0);
+										$html .= $this->form($fields, $output);
+										if ($statics) {
+											foreach ($statics as $stc) {
+												$html .= $stc[0];
+											}
 										}
+										$html .= '</form>';
+									} else {
+										$html = '[unable to find form tag]';
 									}
-									$html .= '</form>';
-								} else {
-									$html = '[unable to find form tag]';
 								}
 							}
-						}
-					} elseif (!isset($opts->block_type)) {
-						// render page blocks
-						if ($snippets) {
-							$html .= $this->blocks($snippets, $output[$opts->select]);
-							if ($statics) {
-								foreach ($statics as $stc) {
-									$html .= $stc[0];
+						} elseif (!isset($opts->block_type)) {
+							// render page blocks
+							if ($snippets) {
+								$html .= $this->blocks($snippets, $output[$opts->select]);
+								if ($statics) {
+									foreach ($statics as $stc) {
+										$html .= $stc[0];
+									}
 								}
+							} else {
+								$html = '[unable to find snippets for page blocks]';
 							}
 						} else {
-							$html = '[unable to find snippets for page blocks]';
+							$html = $this->repeat($innr, $repeat, $nest, $output, $opts->select, $opts->iterate);
 						}
 					} else {
 						$html = $this->repeat($innr, $repeat, $nest, $output, $opts->select, $opts->iterate);
 					}
-				} else {
-					$html = $this->repeat($innr, $repeat, $nest, $output, $opts->select, $opts->iterate);
 				}
 				break;
 			}
@@ -1487,6 +1489,7 @@
 		 * @return string
 		 */
 		public function display($callback=null) {
+			error_log($this->blank);
 			$lang = $this->url_lang;
 			$locked_modules = self::$locked_modules;
 			$unlock_users = self::$unlock_users;
