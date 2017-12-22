@@ -307,19 +307,19 @@ The parser automatically iterates over the proper target at the API response, fo
       <span>{$label}</span>
     </a>
   </div>
-  <div class="4u 12u$(small)" media="audio" oggeh-album>
+  <div media="audio" oggeh-album>
     <a href="/{$lang}/album/audio/{$label}">
       <img src="{$cover.regular.url}" alt="{$label}" />
       <span>{$label}</span>
     </a>
   </div>
-  <div class="4u 12u$(small)" media="video" oggeh-album>
+  <div media="video" oggeh-album>
     <a href="/{$lang}/album/video/{$label}">
       <img src="{$cover.regular.url}" alt="{$label}" />
       <span>{$label}</span>
     </a>
   </div>
-  <div class="4u 12u$(small)" media="file" oggeh-album>
+  <div media="file" oggeh-album>
     <a href="/{$lang}/album/file/{$label}">
       <img src="{$cover.regular.url}" alt="{$label}" />
       <span>{$label}</span>
