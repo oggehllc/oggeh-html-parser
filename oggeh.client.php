@@ -1,7 +1,7 @@
 <?php
 	/*
 	 * OGGEH HTML Parser
-	 * @version 0.3
+	 * @version 0.4
 	 * 
 	 * Author: Ahmed Abbas - OGGEH Cloud Computing LLC - oggeh.com
 	 * License: GNU-GPL v3 (http://www.gnu.org/licenses/gpl.html)
@@ -111,6 +111,12 @@
 		 */
 		static $locked_modules = array();
 		/*
+		 * Default image blank source.
+		 *
+		 * @var string
+		 */
+		static $blank = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABx0RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNui8sowAAAAWdEVYdENyZWF0aW9uIFRpbWUAMTAvMjUvMTcYFuBOAAAADUlEQVQImWP4//8/AwAI/AL+hc2rNAAAAABJRU5ErkJggg==';
+		/*
 		 * App object.
 		 *
 		 * @var string
@@ -153,12 +159,6 @@
 		 */
 		private $locale = array();
 		/*
-		 * Default image blank source.
-		 *
-		 * @var string
-		 */
-		private $blank = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABx0RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNui8sowAAAAWdEVYdENyZWF0aW9uIFRpbWUAMTAvMjUvMTcYFuBOAAAADUlEQVQImWP4//8/AwAI/AL+hc2rNAAAAABJRU5ErkJggg==';
-		/*
 		 * OGGEH Client class constructor.
 		 *
 		 */
@@ -173,9 +173,11 @@
 			$pieces = parse_url($this->uri);
 			$path = trim($pieces['path'], '/');
 			$segments = explode('/', $path);
+			$url_lang_set = false;
 			if (count($segments)>0) {
 				if (strlen($segments[0])>0) {
 					$this->url_lang = $segments[0];
+					$url_lang_set = true;
 					$this->direction = (in_array($this->url_lang, $this->rtl_langs)) ? 'rtl' : 'ltr';
 				}
 				if (count($segments)>1) {
@@ -201,6 +203,10 @@
       	exit;
       } else {
       	$this->app = $this->app[0]['output'];
+      	if (!$url_lang_set && $this->app && $this->app['default_lang'] != 'en') {
+      		header('Location: /'.$this->app['default_lang']);
+      		exit;
+      	}
 	      $this->published = ($this->app) ? true : false;
 	      if (!$this->published) {
 	      	$this->url_module = 'inactive';
@@ -454,8 +460,8 @@
 						foreach ($drill as $d) {
 							$d = (is_numeric($d)) ? (int)$d : $d;
 							$replace = $replace[$d];
-							if ($d == 'url' && $replace == '' && isset($this->blank)) {
-								$replace = $this->blank;
+							if ($d == 'url' && $replace == '' && isset(self::$blank)) {
+								$replace = self::$blank;
 							}
 						}
 					} else {
@@ -468,8 +474,8 @@
 								$html = preg_replace('/{\$flag}/', $flag, $html);
 							}
 						}
-						if ($v['var'] == 'url' && $replace == '' && isset($this->blank)) {
-							$replace = $this->blank;
+						if ($v['var'] == 'url' && $replace == '' && isset(self::$blank)) {
+							$replace = self::$blank;
 						}
 					}
 					$replace = str_replace('/watch?v=', '/embed/', $replace); // proper youtube iframe embedding!
@@ -561,7 +567,7 @@
 		 * @param boolean $convert optional setting to treating one element array as an associative array
 		 * @return string
 		 */
-		protected function repeat($html, $repeat, $nest, $obj, $select, $iterate=null, $convert=true) {
+		protected function repeat($html, $repeat, $nest, $obj, $select=null, $iterate=null, $convert=true) {
 			$select = (stristr($select, ',')) ? explode(',', $select) : $select;
 			if ($html != '') {
 				if (isset($obj[$select]) && is_string($select)) {
@@ -1137,6 +1143,12 @@
 				$type = $obj['type'];
 				switch ($type) {
 					case 'rte':
+					foreach ($obj as &$o) {
+						$o = preg_replace('/<style(.*?)<\/style>/', '', $o);
+						$o = strip_tags($o, '<p><b><strong><i><em><u><a><ul><ol><li><h1><h2><h3><h4><h5><h6>');
+						$o = preg_replace('/\sstyle=\"(.*?)\"/', '', $o);
+						$o = preg_replace('/\sdir=\"(.*?)\"/', '', $o);
+					}
 					$innr = $this->repeat($markup['innr'], $repeat, null, $obj);
 					break;
 					case 'table':
@@ -1322,47 +1334,49 @@
 				break;
 				default:
 				$output = (is_array($output) && count($output) == 1 && array_keys($output) === range(0, count($output) - 1)) ? $output[0] : $output; // treating one element array as an associative array
-				if ($opts->select == 'blocks') {
-					if ($opts->block_type == 'form' && $opts->iterate == 'form') {
-						// render form fields
-						if (count($output[$opts->select]) > 0) {
-							if (isset($output[$opts->select][0][$opts->iterate])) {
-								preg_match_all('@<form(?P<options>\s[^>]+)?\s*?>(?P<content>.*?)</form>@xsi', $innr, $form, PREG_SET_ORDER | PREG_OFFSET_CAPTURE); // inner form tag
-								if ($form) {
-									$html = '<form'.$form[0]['options'][0].'>';
-									$html .= '<input type="hidden" name="method" value="post.page.form">';
-									$html .= '<input type="hidden" name="key" value="'.$opts->key.'">';
-									$html .= '<input type="hidden" name="token" value="'.$output[$opts->select][0]['token'].'">';
-									$output = $this->iterate($output[$opts->select], $opts->iterate, 0);
-									$html .= $this->form($fields, $output);
-									if ($statics) {
-										foreach ($statics as $stc) {
-											$html .= $stc[0];
+				if (count($output)) {
+					if ($opts->select == 'blocks') {
+						if ($opts->block_type == 'form' && $opts->iterate == 'form') {
+							// render form fields
+							if (count($output[$opts->select]) > 0) {
+								if (isset($output[$opts->select][0][$opts->iterate])) {
+									preg_match_all('@<form(?P<options>\s[^>]+)?\s*?>(?P<content>.*?)</form>@xsi', $innr, $form, PREG_SET_ORDER | PREG_OFFSET_CAPTURE); // inner form tag
+									if ($form) {
+										$html = '<form'.$form[0]['options'][0].'>';
+										$html .= '<input type="hidden" name="method" value="post.page.form">';
+										$html .= '<input type="hidden" name="key" value="'.$opts->key.'">';
+										$html .= '<input type="hidden" name="token" value="'.$output[$opts->select][0]['token'].'">';
+										$output = $this->iterate($output[$opts->select], $opts->iterate, 0);
+										$html .= $this->form($fields, $output);
+										if ($statics) {
+											foreach ($statics as $stc) {
+												$html .= $stc[0];
+											}
 										}
+										$html .= '</form>';
+									} else {
+										$html = '[unable to find form tag]';
 									}
-									$html .= '</form>';
-								} else {
-									$html = '[unable to find form tag]';
 								}
 							}
-						}
-					} elseif (!isset($opts->block_type)) {
-						// render page blocks
-						if ($snippets) {
-							$html .= $this->blocks($snippets, $output[$opts->select]);
-							if ($statics) {
-								foreach ($statics as $stc) {
-									$html .= $stc[0];
+						} elseif (!isset($opts->block_type)) {
+							// render page blocks
+							if ($snippets) {
+								$html .= $this->blocks($snippets, $output[$opts->select]);
+								if ($statics) {
+									foreach ($statics as $stc) {
+										$html .= $stc[0];
+									}
 								}
+							} else {
+								$html = '[unable to find snippets for page blocks]';
 							}
 						} else {
-							$html = '[unable to find snippets for page blocks]';
+							$html = $this->repeat($innr, $repeat, $nest, $output, $opts->select, $opts->iterate);
 						}
 					} else {
 						$html = $this->repeat($innr, $repeat, $nest, $output, $opts->select, $opts->iterate);
 					}
-				} else {
-					$html = $this->repeat($innr, $repeat, $nest, $output, $opts->select, $opts->iterate);
 				}
 				break;
 			}
