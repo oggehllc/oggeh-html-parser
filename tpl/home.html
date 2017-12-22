@@ -2,6 +2,7 @@
                                 <section id="slider" class="is-loading-0 is-loading-1 is-loading-2 fullscreen">
                                     <div id="slider-wrapper">
                                         <div id="thumbnails">
+                                            <!-- begin of :: active slider album  -->
                                             <oggeh method="get.albums.schedule" select="caption,thumbnail,original" limit="2">
                                                 <article oggeh-repeat>
                                                     <a class="thumbnail" href="{$original.url}" data-position="center center"><img src="{$thumbnail.url}" alt="{$caption.title}" /></a>
@@ -9,6 +10,7 @@
                                                     <p>{$caption.description}</p>
                                                 </article>
                                             </oggeh>
+                                            <!-- end of :: active slider album  -->
                                         </div>
                                     </div>
                                 </section>
@@ -48,7 +50,7 @@
                                                     <h3><a href="/{$lang}/news/{$timestamp}">{$subject}</a></h3>
                                                     <p>{$header}</p>
                                                     <ul class="actions">
-                                                        <li><a href="/{$lang}/page/{$key}" class="button">{$oggeh-phrase|learn-more}</a></li>
+                                                        <li><a href="/{$lang}/news/{$key}" class="button">{$oggeh-phrase|learn-more}</a></li>
                                                     </ul>
                                                 </div>
                                             </article>
