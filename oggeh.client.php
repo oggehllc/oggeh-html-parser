@@ -1333,7 +1333,11 @@
 				}
 				break;
 				default:
-				$output = (is_array($output) && count($output) == 1 && array_keys($output) === range(0, count($output) - 1)) ? $output[0] : $output; // treating one element array as an associative array
+				$convert = false;
+				if (!in_array($opts->method, array('get.pages','get.locations','get.contacts')) || $opts->method == 'get.news' && $opts->limit > 1) {
+					$convert = true;
+					$output = (is_array($output) && count($output) == 1 && array_keys($output) === range(0, count($output) - 1)) ? $output[0] : $output; // treating one element array as an associative array
+				}
 				if (count($output)) {
 					if ($opts->select == 'blocks') {
 						if ($opts->block_type == 'form' && $opts->iterate == 'form') {
@@ -1372,10 +1376,10 @@
 								$html = '[unable to find snippets for page blocks]';
 							}
 						} else {
-							$html = $this->repeat($innr, $repeat, $nest, $output, $opts->select, $opts->iterate);
+							$html = $this->repeat($innr, $repeat, $nest, $output, $opts->select, $opts->iterate, $convert);
 						}
 					} else {
-						$html = $this->repeat($innr, $repeat, $nest, $output, $opts->select, $opts->iterate);
+						$html = $this->repeat($innr, $repeat, $nest, $output, $opts->select, $opts->iterate, $convert);
 					}
 				}
 				break;

@@ -1062,7 +1062,9 @@ var carousel = (function($) { var _ = {
 	        }
 	      })(marker, i));
 	    }
-	    map.fitBounds(bounds);
+	    if (locations.length > 0) {
+	    	map.fitBounds(bounds);
+	    }
 		}
 
 		// main template activities
