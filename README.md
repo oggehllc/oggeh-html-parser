@@ -2,6 +2,8 @@
 
 This is a free client library introduces our custom HTML tag `<oggeh />` for automating our Content Delivery API. Perfect for skills limited to HTML and CSS only.
 
+> You need a Developer Account to obtain your App API Keys, if you don't have an account, [request](https://account.oggeh.com/request) one now.
+
 ## Getting Started
 
 1. First, you need to enter your App API Key in `index.php`
