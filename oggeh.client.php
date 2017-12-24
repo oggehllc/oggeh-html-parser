@@ -1,7 +1,7 @@
 <?php
 	/*
 	 * OGGEH HTML Parser
-	 * @version 0.4
+	 * @version 0.5
 	 * 
 	 * Author: Ahmed Abbas - OGGEH Cloud Computing LLC - oggeh.com
 	 * License: GNU-GPL v3 (http://www.gnu.org/licenses/gpl.html)
@@ -190,7 +190,9 @@
 					}
 				}
 			}
-			if ($this->url_module == 'index' || $this->url_module == '') {
+			if ($this->url_module != '' && !is_file(self::$tpl_dir.'/'.$this->url_module.'.html') || strlen($this->url_lang) != 2) {
+				$this->url_module = '404';
+			} elseif ($this->url_module == 'index' || $this->url_module == '') {
 				$this->url_module = 'home';
 			}
 			$this->app = $this->call(array(
@@ -1559,30 +1561,36 @@
 				}
 			}
 			if (!$lock) {
-				if ($this->published) {
-					if ($this->url_child_id != '') {
-						if ($this->url_extra_id != '' && is_file(self::$tpl_dir.'/'.$this->url_module.'.'.$this->url_child_id.'.html')) {
-							$tpls[] = self::$tpl_dir.'/'.$this->url_module.'.'.$this->url_child_id.'.html';
-						} elseif (is_file(self::$tpl_dir.'/'.$this->url_module.'.single.html')) {
-							$tpls[] = self::$tpl_dir.'/'.$this->url_module.'.single.html';
-						} elseif (is_file(self::$tpl_dir.'/'.$this->url_module.'.html')) {
-							$tpls[] = self::$tpl_dir.'/'.$this->url_module.'.html';
+				if ($this->url_module != '404') {
+					if ($this->published) {
+						if ($this->url_child_id != '') {
+							if ($this->url_extra_id != '' && is_file(self::$tpl_dir.'/'.$this->url_module.'.'.$this->url_child_id.'.html')) {
+								$tpls[] = self::$tpl_dir.'/'.$this->url_module.'.'.$this->url_child_id.'.html';
+							} elseif (is_file(self::$tpl_dir.'/'.$this->url_module.'.single.html')) {
+								$tpls[] = self::$tpl_dir.'/'.$this->url_module.'.single.html';
+							} elseif (is_file(self::$tpl_dir.'/'.$this->url_module.'.html')) {
+								$tpls[] = self::$tpl_dir.'/'.$this->url_module.'.html';
+							} else {
+								if (is_file(self::$tpl_dir.'/404.html')) {
+									$tpls[] = self::$tpl_dir.'/404.html';
+								}
+							}
 						} else {
-							if (is_file(self::$tpl_dir.'/404.html')) {
-								$tpls[] = self::$tpl_dir.'/404.html';
+							if (is_file(self::$tpl_dir.'/'.$this->url_module.'.html')) {
+								$tpls[] = self::$tpl_dir.'/'.$this->url_module.'.html';
+							} else {
+								if (is_file(self::$tpl_dir.'/404.html')) {
+									$tpls[] = self::$tpl_dir.'/404.html';
+								}
 							}
 						}
 					} else {
-						if (is_file(self::$tpl_dir.'/'.$this->url_module.'.html')) {
-							$tpls[] = self::$tpl_dir.'/'.$this->url_module.'.html';
-						} else {
-							if (is_file(self::$tpl_dir.'/404.html')) {
-								$tpls[] = self::$tpl_dir.'/404.html';
-							}
-						}
+						$tpls[] =self::$tpl_dir.'/'.$this->url_module.'.html';
 					}
 				} else {
-					$tpls[] =self::$tpl_dir.'/'.$this->url_module.'.html';
+					if (is_file(self::$tpl_dir.'/404.html')) {
+						$tpls[] = self::$tpl_dir.'/404.html';
+					}
 				}
 			}
 			if ($this->url_module != 'inactive' && $this->published && is_file(self::$tpl_dir.'/footer.html')) {
