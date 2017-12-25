@@ -1145,12 +1145,6 @@
 				$type = $obj['type'];
 				switch ($type) {
 					case 'rte':
-					foreach ($obj as &$o) {
-						$o = preg_replace('/<style(.*?)<\/style>/', '', $o);
-						$o = strip_tags($o, '<p><b><strong><i><em><u><a><ul><ol><li><h1><h2><h3><h4><h5><h6>');
-						$o = preg_replace('/\sstyle=\"(.*?)\"/', '', $o);
-						$o = preg_replace('/\sdir=\"(.*?)\"/', '', $o);
-					}
 					$innr = $this->repeat($markup['innr'], $repeat, null, $obj);
 					break;
 					case 'table':
