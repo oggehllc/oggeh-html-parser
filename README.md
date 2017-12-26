@@ -11,9 +11,9 @@ This is a free client library introduces our custom HTML tag `<oggeh />` for aut
 OGGEH::configure('domain', 'domain.ltd');
 OGGEH::configure('api_key', '[APP_API_KEY]');
 ```
-2. For local environment, you need to enter your App API Secret as well in `index.php`, and set _sandbox_ setting to `true`
+2. For local environment, you need to enter your App Sandbox Key as well in `index.php`, and set _sandbox_ setting to `true`
 ```php
-OGGEH::configure('api_secret', '[APP_API_SECRET]');
+OGGEH::configure('sandbox_key', '[APP_SANDBOX_KEY]');
 OGGEH::configure('sandbox', true);
 ```
 3. Optionally, you can configure your own Frontend dictionary for translating page custom model attributes as follows:

@@ -50,7 +50,7 @@
 		 *
 		 * @var string
 		 */
-		static $api_secret = '';
+		static $sandbox_key = '';
 		/*
 		 * Selected language.
 		 *
@@ -279,7 +279,7 @@
 			$sandbox = self::$sandbox;
 			$domain = self::$domain;
 			$api_key = self::$api_key;
-			$api_secret = self::$api_secret;
+			$sandbox_key = self::$sandbox_key;
 			$lang = $this->url_lang;
 			if (!isset($api_key) || empty($api_key)) {
 				echo '[missing api key!]';
@@ -324,7 +324,7 @@
 		    	'Content-Length: '.strlen($body)
 		    );
 		    if ($sandbox) {
-		    	$headers[] = 'SandBox: '.hash_hmac('sha512', $domain.$api_key, $api_secret);
+		    	$headers[] = 'SandBox: '.hash_hmac('sha512', $domain.$api_key, $sandbox_key);
 		    }
 		    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
