@@ -117,7 +117,7 @@
 	  ),
 	  'under-maintenance'=>array(
 	    'en'=>'Under Maintenance',
-	    'ar'=>'تحت الاشناء'
+	    'ar'=>'تحت الانشاء'
 	  ),
 	  'under-maintenance-message'=>array(
 	    'en'=>'We\'re updating our content, come back later!',
