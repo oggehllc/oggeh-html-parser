@@ -1529,7 +1529,7 @@
 							$segments = explode('/', $url);
 							$query = '';
 							if (count($segments)>0) {
-								$query .= '/?lang='.$segments[0];
+								$query .= '?lang='.$segments[0];
 							}
 							if (count($segments)>1) {
 								$query .= '&module='.$segments[1];
@@ -1553,7 +1553,7 @@
 							$url = trim($url, '/');
 							$segments = explode('/', $url);
 							if (count($segments) == 1) {
-								$node->setAttribute('href', '/?lang='.$segments[0]);
+								$node->setAttribute('href', '?lang='.$segments[0]);
 							}
 						}
 					}
