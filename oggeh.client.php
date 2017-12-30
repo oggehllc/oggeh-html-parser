@@ -1528,19 +1528,31 @@
 							$url = trim($url, '/');
 							$segments = explode('/', $url);
 							$query = '';
-							if (count($segments>0)) {
+							if (count($segments)>0) {
 								$query .= '/?lang='.$segments[0];
 							}
-							if (count($segments>1)) {
+							if (count($segments)>1) {
 								$query .= '&module='.$segments[1];
 							}
-							if (count($segments>2)) {
+							if (count($segments)>2) {
 								$query .= '&param1='.$segments[2];
 							}
-							if (count($segments>3)) {
+							if (count($segments)>3) {
 								$query .= '&param2='.$segments[3];
 							}
 							$node->setAttribute('href', $query);
+						}
+					}
+				}
+			}
+			if (!self::$rewrite) {
+				foreach ($dom->getElementsByTagName('*') as $node) {
+					if ($node->hasAttribute('href')) {
+						$url = $node->getAttribute('href');
+						$url = trim($url, '/');
+						$segments = explode('/', $url);
+						if (count($segments) == 1) {
+							$node->setAttribute('href', '/?lang='.$segments[0]);
 						}
 					}
 				}
