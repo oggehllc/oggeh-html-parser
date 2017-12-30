@@ -1,7 +1,7 @@
 <?php
 	/*
 	 * OGGEH HTML Parser
-	 * @version 0.6
+	 * @version 0.7
 	 * 
 	 * Author: Ahmed Abbas - OGGEH Cloud Computing LLC - oggeh.com
 	 * License: GNU-GPL v3 (http://www.gnu.org/licenses/gpl.html)
@@ -1549,10 +1549,12 @@
 				foreach ($dom->getElementsByTagName('*') as $node) {
 					if ($node->hasAttribute('href')) {
 						$url = $node->getAttribute('href');
-						$url = trim($url, '/');
-						$segments = explode('/', $url);
-						if (count($segments) == 1) {
-							$node->setAttribute('href', '/?lang='.$segments[0]);
+						if (!stristr($url, '?')) {
+							$url = trim($url, '/');
+							$segments = explode('/', $url);
+							if (count($segments) == 1) {
+								$node->setAttribute('href', '/?lang='.$segments[0]);
+							}
 						}
 					}
 				}
