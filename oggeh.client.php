@@ -1461,10 +1461,18 @@
 					$regex = str_replace('$', '\$', $sw);
 					$regex = str_replace('-', '\-', $regex);
 					$regex = str_replace('|', '\|', $regex);
-					if (stristr($this->uri, '/'.$this->url_lang.'/')) {
-						$replace = str_replace('/'.$this->url_lang.'/', '/'.$switch['lang'][$idx].'/', $this->uri);
+					if (self::$rewrite) {
+						if (stristr($this->uri, '/'.$this->url_lang.'/')) {
+							$replace = str_replace('/'.$this->url_lang.'/', '/'.$switch['lang'][$idx].'/', $this->uri);
+						} else {
+							$replace = '/'.$switch['lang'][$idx].'/';
+						}
 					} else {
-						$replace = '/'.$switch['lang'][$idx].'/';
+						if (stristr($this->uri, '?lang='.$this->url_lang)) {
+							$replace = str_replace('?lang='.$this->url_lang, '?lang='.$switch['lang'][$idx], $this->uri);
+						} else {
+							$replace = '?lang='.$switch['lang'][$idx];
+						}
 					}
 					$replace = str_replace('$', '{$}', $replace);
 					$html = preg_replace('/'.$regex.'/', $replace, $html);
