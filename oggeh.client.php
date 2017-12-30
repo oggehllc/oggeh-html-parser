@@ -1,7 +1,7 @@
 <?php
 	/*
 	 * OGGEH HTML Parser
-	 * @version 0.5
+	 * @version 0.6
 	 * 
 	 * Author: Ahmed Abbas - OGGEH Cloud Computing LLC - oggeh.com
 	 * License: GNU-GPL v3 (http://www.gnu.org/licenses/gpl.html)
@@ -33,6 +33,12 @@
 		 * @var string
 		 */
 		static $sandbox = false;
+		/*
+		 * Rewrite Enabled.
+		 *
+		 * @var string
+		 */
+		static $rewrite = false;
 		/*
 		 * App Domain.
 		 *
@@ -171,23 +177,41 @@
 			}
 			$this->uri = $_SERVER['REQUEST_URI'];
 			$pieces = parse_url($this->uri);
-			$path = trim($pieces['path'], '/');
-			$segments = explode('/', $path);
 			$url_lang_set = false;
-			if (count($segments)>0) {
-				if (strlen($segments[0])>0) {
-					$this->url_lang = $segments[0];
+			if (self::$rewrite) {
+				$path = trim($pieces['path'], '/');
+				$segments = explode('/', $path);
+				if (count($segments)>0) {
+					if (strlen($segments[0])>0) {
+						$this->url_lang = $segments[0];
+						$url_lang_set = true;
+						$this->direction = (in_array($this->url_lang, $this->rtl_langs)) ? 'rtl' : 'ltr';
+					}
+					if (count($segments)>1) {
+						$this->url_module = $segments[1];
+						if (count($segments)>2) {
+							$this->url_child_id = urldecode($segments[2]);
+							if (count($segments)>3) {
+								$this->url_extra_id = urldecode($segments[3]);
+							}
+						}
+					}
+				}
+			} else {
+				parse_str($pieces['query'], $query);
+				if (isset($query['lang'])) {
+					$this->url_lang = $query['lang'];
 					$url_lang_set = true;
 					$this->direction = (in_array($this->url_lang, $this->rtl_langs)) ? 'rtl' : 'ltr';
 				}
-				if (count($segments)>1) {
-					$this->url_module = $segments[1];
-					if (count($segments)>2) {
-						$this->url_child_id = urldecode($segments[2]);
-						if (count($segments)>3) {
-							$this->url_extra_id = urldecode($segments[3]);
-						}
-					}
+				if (isset($query['module'])) {
+					$this->url_module = $query['module'];
+				}
+				if (isset($query['param1'])) {
+					$this->url_child_id = $query['param1'];
+				}
+				if (isset($query['param2'])) {
+					$this->url_extra_id = $query['param2'];
 				}
 			}
 			if ($this->url_module != '' && !is_file(self::$tpl_dir.'/'.$this->url_module.'.html') || strlen($this->url_lang) != 2) {
@@ -206,7 +230,11 @@
       } else {
       	$this->app = $this->app[0]['output'];
       	if (!$url_lang_set && $this->app && $this->app['default_lang'] != 'en') {
-      		header('Location: /'.$this->app['default_lang']);
+      		if (self::$rewrite) {
+      			header('Location: /'.$this->app['default_lang']);
+      		} else {
+      			header('Location: /?lang='.$this->app['default_lang']);
+      		}
       		exit;
       	}
 	      $this->published = ($this->app) ? true : false;
@@ -1145,6 +1173,12 @@
 				$type = $obj['type'];
 				switch ($type) {
 					case 'rte':
+					foreach ($obj as &$o) {
+						$o = preg_replace('/<style(.*?)<\/style>/', '', $o);
+						$o = strip_tags($o, '<p><b><strong><i><em><u><a><ul><ol><li><h1><h2><h3><h4><h5><h6>');
+						$o = preg_replace('/\sstyle=\"(.*?)\"/', '', $o);
+						$o = preg_replace('/\sdir=\"(.*?)\"/', '', $o);
+					}
 					$innr = $this->repeat($markup['innr'], $repeat, null, $obj);
 					break;
 					case 'table':
@@ -1488,6 +1522,25 @@
 							} else {
 								$node->setAttribute('class', $class);
 							}
+						}
+						if (!self::$rewrite) {
+							$url = $node->getAttribute('href');
+							$url = trim($url, '/');
+							$segments = explode('/', $url);
+							$query = '';
+							if (count($segments>0)) {
+								$query .= '/?lang='.$segments[0];
+							}
+							if (count($segments>1)) {
+								$query .= '&module='.$segments[1];
+							}
+							if (count($segments>2)) {
+								$query .= '&param1='.$segments[2];
+							}
+							if (count($segments>3)) {
+								$query .= '&param2='.$segments[3];
+							}
+							$node->setAttribute('href', $query);
 						}
 					}
 				}

@@ -1,3 +1,5 @@
+# Remember to enable `rewrite` settings at `index.php` before activating this file:
+# OGGEH::configure('rewrite', true);
 <IfModule mod_rewrite.c>
 RewriteEngine On
 RewriteBase /

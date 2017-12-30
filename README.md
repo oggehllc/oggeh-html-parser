@@ -42,9 +42,18 @@ If you're planning to use this example, remove the `SandBox` header from JavaScr
 
 ## How it Works
 
-The library has `.htaccess` file which redirects all requests at your Frontend Template to the above index file as follows:
+The library accepts the following URL Segments:
+```
+http://domain.ltd/?lang=&module=&param1=&param2=
+```
+
+If you're familiar with apache rewrite rules, you can rename `htaccess.txt` to `.htaccess` which redirects all requests at your Frontend Template to the above index file as follows:
 ```
 http://domain.ltd/:lang/:module/:param1/:param2
+```
+Remember to enable `rewrite` settings at `index.php` before activating the above file:
+```
+OGGEH::configure('rewrite', true);
 ```
 
 URL Segment | Description

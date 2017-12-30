@@ -1,5 +1,6 @@
 <?php
 	require_once('oggeh.client.php');
+	//OGGEH::configure('rewrite', true); // uncomment to enable rewrite settings (rename htaccess.txt to .htaccess)
 	OGGEH::configure('domain', 'domain.ltd');
 	OGGEH::configure('api_key', '57ff136718d176aae148c8ce9aaf6817');
 	// Enable development environment
