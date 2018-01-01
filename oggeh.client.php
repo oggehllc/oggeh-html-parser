@@ -1531,8 +1531,14 @@
 								$node->setAttribute('class', $class);
 							}
 						}
-						if (!self::$rewrite) {
-							$url = $node->getAttribute('href');
+					}
+				}
+			}
+			if (!self::$rewrite) {
+				foreach ($dom->getElementsByTagName('*') as $node) {
+					if ($node->hasAttribute('href')) {
+						$url = $node->getAttribute('href');
+						if ($url != '' && $url != '#' && !stristr($url, '?') && !stristr($url, 'mailto:') && !stristr($url, 'http:') && !stristr($url, 'https:') && stristr($url, '/')) {
 							$url = trim($url, '/');
 							$segments = explode('/', $url);
 							$query = '';
@@ -1549,20 +1555,6 @@
 								$query .= '&param2='.$segments[3];
 							}
 							$node->setAttribute('href', $query);
-						}
-					}
-				}
-			}
-			if (!self::$rewrite) {
-				foreach ($dom->getElementsByTagName('*') as $node) {
-					if ($node->hasAttribute('href')) {
-						$url = $node->getAttribute('href');
-						if (!stristr($url, '?')) {
-							$url = trim($url, '/');
-							$segments = explode('/', $url);
-							if (count($segments) == 1) {
-								$node->setAttribute('href', '?lang='.$segments[0]);
-							}
 						}
 					}
 				}
