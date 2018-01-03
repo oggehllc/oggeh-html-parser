@@ -1,7 +1,7 @@
 <?php
 	/*
 	 * OGGEH HTML Parser
-	 * @version 0.7
+	 * @version 0.8
 	 * 
 	 * Author: Ahmed Abbas - OGGEH Cloud Computing LLC - oggeh.com
 	 * License: GNU-GPL v3 (http://www.gnu.org/licenses/gpl.html)
@@ -372,7 +372,7 @@
 		    	$res = json_decode($res, true);
 			    if ($res) {
 			    	if ($res['error'] != '') {
-			    		if ($res['error'] != 'app not published') {
+			    		if ($res['error'] != 'app not published' && $res['error'] != 'account suspended') {
 			    			$res = '['.$res['error'].']';
 			    		}
 				    } else {
