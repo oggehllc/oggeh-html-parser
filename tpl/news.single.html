@@ -105,7 +105,7 @@
                               <div class="row uniform">
                                 <!-- begin of :: only news form block for news start date matches url $param1 -->
                                 <oggeh method="get.news" start-date="{$param1}" limit="1" select="blocks" block-type="form" iterate="form">
-                                  <form method="post" action="{$endpoint}/?api_key={$api_key}&lang={$lang}" data-success="{$oggeh-phrase|form-success}" data-error="{$oggeh-phrase|form-error}">
+                                  <form method="post" action="{$endpoint}/?api_key={$api_key}&lang={$lang}" data-success="{$oggeh-phrase|form-success}" data-error="{$oggeh-phrase|form-error}" enctype="multipart/form-data">
                                     <!-- NOTE: always use unique field parent tag (do not reuse in child tags) -->
                                     <article class="12u" type="text" subtype="text" inject="validate-required|required" oggeh-field>
                                       <label for="{$name}">{$label}</label>
